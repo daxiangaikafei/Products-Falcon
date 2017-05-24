@@ -1,5 +1,9 @@
 <template>
+
     <el-menu :unique-opened='true' mode="vertical" theme="dark" :default-active="$route.path">
+        <div class="logo-container">
+            <span class="logo">Falcon猎鹰系统</span>
+        </div>
         <template v-for="item in permissionRoutes" v-if="!item.hidden">
             <el-submenu :index="item.name" v-if="!item.noDropdown">
                 <template slot="title">
@@ -52,6 +56,26 @@
     .el-menu-item, .el-submenu__title {
         @include flex;
         @include flex-align-center;
+    }
+    .logo-container {
+        height: 50px;
+        background: #424A57;
+        color: #fff;
+        width: 100%;
+        @include flex;
+        @include flex-justify-center;
+        @include flex-align-center;
+        .logo {
+            overflow: hidden;
+            transition: all .5s linear;
+        }
+    }
+    .hideSidebar .logo-container .logo {
+        width: 0;
+        
+    }
+    .sidebar-wrapper:hover .logo {
+        width:auto;
     }
 </style>
 
