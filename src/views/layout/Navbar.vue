@@ -1,28 +1,29 @@
 <template>
-    <el-menu class="navbar" mode="horizontal">
-        <Hamburger class="hamburger-container" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></Hamburger>
-        <levelbar></levelbar>
-        <ErrLog v-if="log.length>0" class="errLog-container" :logsList="log"></ErrLog>
-        <el-dropdown class="avatar-container" trigger="click">
-            <div class="avatar-wrapper">
-                <img class="user-avatar" :src="avatar">
-                <!--<img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'">-->
-                <i class="el-icon-caret-bottom"/>
+    <el-menu class="navbar" mode="horizontal" theme="dark">
+            <div class="left">
+                <Hamburger class="hamburger-container" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></Hamburger>
+                <levelbar></levelbar>
             </div>
-            <el-dropdown-menu class="user-dropdown" slot="dropdown">
-                <router-link  class='inlineBlock' to="/">
-                    <el-dropdown-item>
-                        首页
-                    </el-dropdown-item>
-                </router-link>
-                <router-link  class='inlineBlock' to="/admin/profile">
-                    <el-dropdown-item>
-                        设置
-                    </el-dropdown-item>
-                </router-link>
-                <el-dropdown-item divided><span @click="logout" style="display:block;">退出登录</span></el-dropdown-item>
-            </el-dropdown-menu>
-        </el-dropdown>
+            <div class="right">
+                    <ErrLog v-if="log.length>0" class="errLog-container" :logsList="log"></ErrLog>
+                    <div class="avatar-container" trigger="click">
+                            <div class="help">
+                                <Icon :icon-name="'alert-circle'" />
+                                帮助
+                            </div>
+                            <span class="line"></span>
+                            <div class="avatar-wrapper">
+                                <img class="user-avatar" :src="avatar">
+                                用户账号：{{name}} [{{introduction}}]
+                            </div>
+                            <span class="line"></span>                            
+                            <div class="exit" @click="logout">
+                                <Icon :icon-name="'exit'" />
+                                退出
+                            </div>
+                            <!--<el-dropdown-item divided><span @click="logout" style="display:block;">退出登录</span></el-dropdown-item>-->
+                    </div>
+            </div>
     </el-menu>
 </template>
 
@@ -48,7 +49,8 @@
         ...mapGetters([
           'sidebar',
           'name',
-          'avatar'
+          'avatar',
+          'introduction'
         ])
       },
       methods: {
@@ -64,10 +66,20 @@
     }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
+    @import "src/styles/mixin.scss";
+
     .navbar {
         height: 50px;
         line-height: 50px;
         border-radius: 0px !important;
+        &>div{
+            height: 50px;
+        }
+        &:before, &:after {
+            content: none;
+        }
+        @include flex;
+        @include flex-justify;
         .hamburger-container {
             line-height: 58px;
             height: 50px;
@@ -76,22 +88,29 @@
         }
         .errLog-container {
             display: inline-block;
-            position: absolute;
-            right: 150px;
+        }
+        .right {
+            color: #fbfdff;
+            font-size: 14px;
+            @include flex;
+            @include flex-justify;
         }
         .avatar-container {
             height: 50px;
             display: inline-block;
-            position: absolute;
-            right: 35px;
+            text-align: center;
+            @include flex;
+            @include flex-justify;
+            @include flex-align-center;
+            
             .avatar-wrapper {
-                cursor: pointer;
-                margin-top:5px;
-                position: relative;
+                height: 100%;
+                
                 .user-avatar {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 10px;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    margin-right: 5px;
                 }
                 .el-icon-caret-bottom {
                     position: absolute;
@@ -99,6 +118,25 @@
                     top: 25px;
                     font-size: 12px;
                 }
+            }
+            .avatar-wrapper, .help, .exit {
+                @include flex;
+                @include flex-justify-center;
+                @include flex-align-center;
+            }
+            .help, .exit {
+                cursor:pointer;                
+                .icon {
+                    margin-right: 3px;
+                }
+            }
+            .exit {
+                padding-right: 10px;
+            }
+            .line {
+                border-left: 1px solid #8391a5;
+                height: 15px;
+                margin: 0 10px;
             }
         }
     }
