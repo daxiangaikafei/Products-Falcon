@@ -17,6 +17,10 @@ import reset from '../views/login/reset';
 
 const Index = resolve => require(['../views/index/index'], resolve);
 
+/* Task Manage*/
+const TaskManage = resolve => require(['../views/taskManage/index'], resolve);
+const TaskAdd = resolve => require(['../views/taskManage/taskAdd'], resolve);
+
 /* Introduction*/
 const Introduction = resolve => require(['../views/introduction/index'], resolve);
 
@@ -71,15 +75,29 @@ export default new Router({
       children: [{ path: 'index', component: Index, name: '首页' }]
     },
     {
-      path: '/permission',
+      path: '/manage',
       component: Layout,
-      redirect: '/permission/index',
-      name: '权限测试',
-      icon: 'lock',
+      redirect: '/manage/taskManage',
+      name: '管理调度任务',
+      icon: 'layers',
       meta: { role: ['admin'] },
-      noDropdown: true,
-      children: [{ path: 'index', component: Permission, name: '权限测试', meta: { role: ['admin'] } }]
+      children: [
+          { path: 'taskManage', component: TaskManage, name: '编辑调度任务' },
+          { path: 'taskAdd', component: TaskAdd, name: '新增调度任务' },
+          { path: 'line', component: LineMarker, name: '管理任务组' },
+          { path: 'line', component: LineMarker, name: '新增任务组' }
+      ]
     },
+    // {
+    //   path: '/permission',
+    //   component: Layout,
+    //   redirect: '/permission/index',
+    //   name: '权限测试',
+    //   icon: 'lock',
+    //   meta: { role: ['admin'] },
+    //   noDropdown: true,
+    //   children: [{ path: 'index', component: Permission, name: '权限测试', meta: { role: ['admin'] } }]
+    // },
     {
       path: '/charts',
       component: Layout,
