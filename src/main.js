@@ -10,8 +10,6 @@ import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import 'normalize.css/normalize.css';
 import 'styles/index.scss';
-import 'components/Icon-svg/index';
-import 'assets/iconfont/iconfont';
 import * as filters from './filters';
 import Multiselect from 'vue-multiselect';
 import Icon from 'components/Icon';
