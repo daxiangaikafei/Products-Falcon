@@ -3,16 +3,16 @@
         <el-form autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left"
                  label-width="0px"
                  class="card-box login-form">
-            <h3 class="title">系统登录</h3>
+            <h3 class="title">FALCON猎鹰系统</h3>
             <el-form-item prop="email">
                 <span class="svg-container"><Icon :icon-name="'envelope'"/></span>
                 <el-input name="email" type="text" v-model="loginForm.email" autoComplete="on"
-                          placeholder="邮箱"></el-input>
+                          placeholder="请输入账号"></el-input>
             </el-form-item>
             <el-form-item prop="password">
                 <span class="svg-container"><Icon :icon-name="'lock'"/></span>
                 <el-input name="password" type="password" @keyup.enter.native="handleLogin" v-model="loginForm.password"
-                          autoComplete="on" placeholder="密码"></el-input>
+                          autoComplete="on" placeholder="请输入密码"></el-input>
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" style="width:100%;" :loading="loading" @click.native.prevent="handleLogin">
@@ -22,7 +22,7 @@
             <div class='tips'>admin账号为:admin@qbao.com 密码随便填</div>
             <div class='tips'>editor账号:editor@qbao.com 密码随便填</div>
             <router-link to="/sendpwd" class="forget-pwd">
-                忘记密码?(或首次登录)
+                忘记密码
             </router-link>
         </el-form>
     </div>
