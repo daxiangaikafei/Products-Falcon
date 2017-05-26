@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import loginAPI from './login';
-import tableAPI from './table';
+import taskAPI from './task';
 import searchAPI from './search';
 const mock = new MockAdapter(axios);
 
@@ -10,8 +10,8 @@ mock.onPost('/login/loginbyemail').reply(loginAPI.loginByEmail);
 mock.onPost('/login/logout').reply(loginAPI.logout);
 mock.onGet('/user/info').reply(loginAPI.getInfo);
 
-// table相关
-mock.onGet('/table/list').reply(tableAPI.getList);
+// task manage
+mock.onGet('/task/list').reply(taskAPI.getList);
 
 // 搜索相关
 mock.onGet('/search/user').reply(searchAPI.searchUser);

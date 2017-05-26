@@ -145,7 +145,7 @@
 </template>
 
 <script>
-    import { fetchList, fetchPv } from 'api/table';
+    import { fetchList, fetchPv } from 'api/task';
     import { parseTime, objectMerge } from 'utils';
 
     export default {
