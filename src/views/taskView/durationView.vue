@@ -59,6 +59,13 @@
         </template>
       </el-table-column>
 
+      <el-table-column width="110px" align="center" label="日志">
+        <template scope="scope">
+          <router-link :to="{name:'logView',params: {taskId: scope.row.id}}">
+            <el-button type="success" size="small">查看</el-button>
+          </router-link>
+        </template>
+      </el-table-column>
     </el-table>
 
     <div v-show="!listLoading" class="pagination-container">
@@ -169,10 +176,10 @@
               text: '当前查看任务',
               textStyle: {
                 fontWeight: 'normal',
-                fontSize: 16,
+                fontSize: 14,
                 color: '#57617B'
               },
-              left: '2%'
+              padding: [10,0,10,10]
             },
             tooltip: {
               trigger: 'axis',
@@ -183,7 +190,7 @@
               }
             },
             grid: {
-              left: '3%',
+              left: '2%',
               right: '4%',
               bottom: '3%',
               containLabel: true
@@ -193,31 +200,42 @@
               boundaryGap: false,
               axisLine: {
                 lineStyle: {
-                  color: '#57617B'
+                  color: '#DFE0E1'
                 }
               },
+              axisLabel: {
+                textStyle: {
+                  color: '#57617B',
+                  fontSize: 14                                    
+                }
+              },
+              offset: 3,
               data: []
             }],
             yAxis: [{
               type: 'value',
-              name: '单位（s）',
+              name: '单位(s)',
               axisTick: {
                 show: false
               },
+              nameTextStyle: {
+                color: '#57617B'                                  
+              },
               axisLine: {
                 lineStyle: {
-                  color: '#57617B'
+                  color: '#DFE0E1'
                 }
               },
               axisLabel: {
                 margin: 10,
                 textStyle: {
+                  color: '#57617B',                  
                   fontSize: 14
                 }
               },
               splitLine: {
                 lineStyle: {
-                  color: '#57617B'
+                  color: '#DFE0E1'
                 }
               }
             }],
@@ -226,8 +244,8 @@
               type: 'line',
               smooth: true,
               symbol: 'circle',
-              symbolSize: 1,
-              showSymbol: false,
+              symbolSize: 4,
+              showSymbol: true,
               lineStyle: {
                 normal: {
                   width: 1
