@@ -3,6 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import loginAPI from './login';
 import taskAPI from './task';
 import groupAPI from './group';
+import logAPI from './log';
 import searchAPI from './search';
 const mock = new MockAdapter(axios);
 
@@ -16,6 +17,8 @@ mock.onGet('/task/list').reply(taskAPI.getList);
 mock.onGet('/task/subList').reply(taskAPI.getSubList);
 // group manage
 mock.onGet('/group/list').reply(groupAPI.getList);
+// log
+mock.onGet('/log/detail').reply(logAPI.getDetail);
 
 // 搜索相关
 mock.onGet('/search/user').reply(searchAPI.searchUser);
