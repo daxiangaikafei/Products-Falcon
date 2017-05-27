@@ -19,7 +19,7 @@ for (let i = 0; i < count; i++) {
     'status|1': ['Success', 'Running', 'Falled', 'Waiting'],
     'cycle|1': ['daily','once','weekly','monthly','yearly','hourly'],
     'db|1': ['SSA','SOR','DPA','DM'],
-    'depend': ['@first','@last','@last'],
+    'depend|1-4': ['@first'],
     pageviews: '@integer(300, 5000)'
   }));
 }
@@ -34,8 +34,8 @@ for (let i = 0; i < subCount; i++) {
     endTime: +Mock.Random.time('T'),
     updateTime: +Mock.Random.date('T'),
     exeDuration: +Mock.Random.time('T'),
-    'durations': [/\d{1,3}/,/\d{1,3}/,/\d{1,3}/,/\d{1,3}/,/\d{1,3}/,/\d{1,3}/,/\d{1,3}/,/\d{1,3}/,],
-    'dates': [Mock.Random.date('yyyy.MM.dd'),Mock.Random.date('yyyy.MM.dd'),Mock.Random.date('yyyy.MM.dd'),Mock.Random.date('yyyy.MM.dd'),Mock.Random.date('yyyy.MM.dd'),Mock.Random.date('yyyy.MM.dd'),Mock.Random.date('yyyy.MM.dd')],
+    'durations|7': ['@natural(9,99)'],
+    'dates|7': ["@date('yyyy.MM.dd')"],
     jobName: /P_SEITL_TASK_[A-Z]{3}_[A-Z]{1}/,
     'author|1': ['ROOT','ADMIN','DEVELOP'],
     'status|1': ['Success', 'Running', 'Falled', 'Waiting'],
