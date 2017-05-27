@@ -1,21 +1,12 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" placeholder="Job_name" v-model="listQuery.title">
+      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" placeholder="Job_name" v-model="listQuery.jobName">
+      </el-input> 
+      <el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.author"> 
       </el-input>
-
-      <el-select clearable class="filter-item" style="width: 130px" v-model="listQuery.status" placeholder="Status">
-        <el-option v-for="item in  statusOptions" :key="item" :label="item" :value="item">
-        </el-option>
-      </el-select>
-
-      <el-select @change='handleFilter' style="width: 120px" class="filter-item" v-model="listQuery.sort" placeholder="排序">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key">
-        </el-option>
-      </el-select>
-
       <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="edit">添加</el-button>
+      <el-button class="filter-item" v-waves icon="circle-close" @click="clearFilter">清除</el-button>
     </div>
 
     <el-table  :key='tableKey' :data="list" :default-sort="{prop: 'id', order: 'aescending'}" v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">
@@ -29,37 +20,43 @@
       <el-table-column min-width="200px" label="Job_name" sortable prop="jobName">
         <template scope="scope">
           <!--<span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.title}}</span>-->
-          <a href='#' >P_SEITL_TASK_RCD_D</a>
+          <a href='#' >{{scope.row.jobName}}</a>
         </template>
       </el-table-column>
 
-      <el-table-column min-width="130px" label="调度时间点" sortable prop="time">
+      <el-table-column min-width="130px" label="调度时间点" sortable prop="exeTime">
         <template scope="scope">
-          <span>{{scope.row.timestamp | parseTime('{h}:{i}')}}</span>
+          <span>{{scope.row.exeTime | parseTime('{h}:{i}')}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column min-width="120px" label="所属组ID" sortable prop="teamId">
+      <el-table-column min-width="120px" label="所属组ID" sortable prop="groupId">
         <template scope="scope">
-          <span>{{scope.row.id}}</span>          
+          <span>{{scope.row.groupId}}</span>          
         </template>
       </el-table-column>
 
-      <el-table-column min-width="130px" label="所属组名" sortable prop="teamName">
+      <el-table-column min-width="130px" label="所属组名" sortable prop="groupName">
         <template scope="scope">
-          <span>SOR_P_TASK</span>          
+          <span>{{scope.row.groupName}}</span>          
         </template>
       </el-table-column>
 
       <el-table-column width="160px" align="center" label="调度开始日期" prop="startDate" sortable>
         <template scope="scope">
-          <span>{{scope.row.timestamp | parseTime('{y}-{m}-{d}')}}</span>
+          <span>{{scope.row.startDate | parseTime('{y}-{m}-{d}')}}</span>
         </template>
       </el-table-column>
 
       <el-table-column width="160px" align="center" label="调度结束日期" prop="endDate" sortable>
         <template scope="scope">
-          <span>{{scope.row.timestamp | parseTime('{y}-{m}-{d}')}}</span>
+          <span>{{scope.row.endDate | parseTime('{y}-{m}-{d}')}}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column width="200px" align="center" label="更新时间" prop="updateTime" sortable>
+        <template scope="scope">
+          <span>{{scope.row.updateTime | parseTime('{y}-{m}-{d} {hh}:{mm}:{ss}')}}</span>
         </template>
       </el-table-column>
 
@@ -74,7 +71,7 @@
 
       <el-table-column width="110px" align="center" label="提交人" sortable prop="author">
         <template scope="scope">
-          <span>ROOT</span>
+          <span>{{scope.row.author}}</span>
         </template>
       </el-table-column>
 
@@ -82,9 +79,8 @@
         <template scope="scope">
           <el-button v-if="scope.row.status=='Running'" size="small" type="danger" @click="handleModifyStatus(scope.row,'Falled')">停止
           </el-button>
-          <el-button v-if="scope.row.status!='Running'" size="small" type="primary">
-            <router-link to="/components/index">编辑</router-link>
-            </el-button>
+          <el-button v-if="scope.row.status!='Running'" size="small" type="primary" @click="handleUpdate(scope.row)">编辑
+          </el-button>
         </template>
       </el-table-column>
 
@@ -131,21 +127,80 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="阅读数统计" v-model="dialogPvVisible" size="small">
-       <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-          <el-table-column prop="key" label="渠道"> </el-table-column>
-          <el-table-column  prop="pv" label="pv"> </el-table-column>
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">确 定</el-button>
-      </span>
-    </el-dialog >
+
+
+    <el-dialog :title="textMap[dialogStatus]" v-model="editorDialogVisable">
+      <div class="form-container">
+          <el-form ref="form" :model="form" label-width="110px" class="form">
+          <el-form-item label="任务名称">
+            <el-input v-model="form.jobName"></el-input>
+          </el-form-item>
+          <el-form-item label="任务脚本名">
+            <el-input v-model="form.scriptName"></el-input>
+          </el-form-item>
+          <el-form-item label="操作人">
+            <el-input v-model="form.author"></el-input>
+          </el-form-item>
+          <el-form-item label="数据库仓库层级">
+            <el-select v-model="form.db" placeholder="请选择">
+              <el-option label="SSA" value="SSA"></el-option>
+              <el-option label="SOR" value="SOR"></el-option>
+              <el-option label="DPA" value="DPA"></el-option>
+              <el-option label="DM" value="DM"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="依赖任务">
+            <el-select
+                v-model="form.depend"
+                multiple
+                filterable
+                remote
+                placeholder="查询并选择依赖"
+                :remote-method="getDepend"
+                :loading="loading"
+                style="width:100%">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
+          </el-form-item>
+          <el-form-item label="所属组">
+            <el-input v-model="form.groupName"></el-input>
+          </el-form-item>
+          <el-form-item label="运行周期">
+            <el-select v-model="form.cycle" placeholder="请选择">
+              <el-option label="每日" value="daily"></el-option>
+              <el-option label="单次" value="once"></el-option>
+              <el-option label="每周" value="weekly"></el-option>
+              <el-option label="每月" value="monthly"></el-option>
+              <el-option label="每年" value="yearly"></el-option>
+              <el-option label="每小时" value="hourly"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="运行时间点">
+              <el-time-picker type="fixed-time" placeholder="选择时间" v-model="form.exeTime" format="HH:mm" style="width: 50%;" @change="timeToStamp('exeTime')"></el-time-picker>
+          </el-form-item>
+          <el-form-item label="首次运行日期">
+              <el-date-picker type="date" placeholder="选择日期" v-model="form.startDate" style="width: 50%;" @change="timeToStamp('startDate')"></el-date-picker>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="success" >保存</el-button>
+            <el-button type="primary" @click="update">提交</el-button>
+            <el-button type="warning" @click="reset">重置</el-button>
+            <el-button @click="editorDialogVisable = false">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+    </el-dialog>
 
   </div>
 </template>
 
 <script>
-    import { fetchList, fetchPv } from 'api/table';
+    import { fetchList } from 'api/task';
     import { parseTime, objectMerge } from 'utils';
 
     export default {
@@ -158,18 +213,26 @@
           listQuery: {
             page: 1,
             limit: 20,
-            title: undefined,
+            jobName: undefined,
+            author: undefined,
             sort: '+id',
             status: ''
           },
           temp: {
             id: undefined,
-            importance: 0,
-            remark: '',
-            timestamp: 0,
-            title: '',
-            type: '',
-            status: 'Waiting'
+            jobName: '',
+            scriptName: '',
+            groupId: 0,
+            groupName: '',
+            db: 'SSA',
+            cycle: 'daily',
+            depend: [],
+            exeTime: '',
+            startDate: '',
+            endDate: '',
+            updateTime: '',   
+            status: 'Waiting',
+            author: '' 
           },
           importanceOptions: [1, 2, 3],
           sortOptions: [{ label: '按ID升序', key: '+id' }, { label: '按ID降序', key: '-id' }],
@@ -181,13 +244,50 @@
             create: '创建'
           },
           dialogPvVisible: false,
+          editorDialogVisable: false,
           pvData: [],
           showAuditor: false,
-          tableKey: 0
+          tableKey: 0,
+          form: {
+            id: undefined,
+            jobName: '',
+            scriptName: '',
+            groupId: 0,
+            groupName: '',
+            db: 'SSA',
+            cycle: 'daily',
+            depend: [],
+            exeTime: '',
+            startDate: '',
+            endDate: '',
+            updateTime: '',   
+            status: 'Waiting',
+            author: ''                     
+          },
+          loading: false,
+          options: [{
+            value: 'HTML',
+            label: 'HTML'
+          }, {
+            value: 'CSS',
+            label: 'CSS'
+          }, {
+            value: 'JavaScript',
+            label: 'JavaScript'
+          }],
+          states: ["HTML","CSS","JavaScript","PHP", "Java", "Ruby",
+          "Python", "NodeJS", "C","C++", "C#", "Perl","Swift", "Go", "R", "Object-C",
+          "Visual Basic", "SQL", "Scala", "Lua","Dart", "Lisp","Bash"]
         }
       },
+      
       created() {
         this.getList();
+      },
+      mounted() {
+        this.form.dependList = this.states.map(item => {
+          return { value: item, label: item };
+        });
       },
       filters: {
         statusFilter(status) {
@@ -203,6 +303,7 @@
           return calendarTypeKeyValue[type]
         }
       },
+      
       methods: {
         getList() {
           this.listLoading = true;
@@ -212,7 +313,26 @@
             this.listLoading = false;
           })
         },
+        getDepend(query) {
+          if (query !== '') {
+            this.loading = true;
+            setTimeout(() => {
+              this.loading = false;
+              this.options = this.form.dependList.filter(item => {
+                return item.label.toLowerCase()
+                  .indexOf(query.toLowerCase()) > -1;
+              });
+            }, 200);
+          } else {
+            this.options = [];
+          }
+        },
         handleFilter() {
+          this.getList();
+        },
+        clearFilter() {
+          this.listQuery.name = ''
+          this.listQuery.author = ''
           this.getList();
         },
         handleSizeChange(val) {
@@ -239,48 +359,28 @@
           });
           row.status = status;
         },
-        handleCreate() {
-          this.resetTemp();
-          this.dialogStatus = 'create';
-          this.dialogFormVisible = true;
-        },
         handleUpdate(row) {
-          objectMerge(this.temp, row)
+          objectMerge(this.form, row)
+          objectMerge(this.temp, this.form)
           this.dialogStatus = 'update';
-          this.dialogFormVisible = true;
+          this.editorDialogVisable = true;
         },
-        handleDelete(row) {
-          this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success',
-            duration: 2000
-          });
-          const index = this.list.indexOf(row);
-          this.list.splice(index, 1);
-        },
-        create() {
-          this.temp.id = parseInt(Math.random() * 100) + 1024;
-          this.temp.timestamp = +new Date();
-          this.temp.author = '原创作者';
-          this.list.unshift(this.temp);
-          this.dialogFormVisible = false;
-          this.$notify({
-            title: '成功',
-            message: '创建成功',
-            type: 'success',
-            duration: 2000
-          });
-        },
+
         update() {
-          this.temp.timestamp = +this.temp.timestamp;
+          this.form.updateTime = new Date().getTime();
+          if (!/d+/ig.test(this.form.startDate)) {
+            this.form.startDate = this.timeToStamp(this.form.startDate)
+          }
+          if (!/d+/ig.test(this.form.exeTime)) {
+            this.form.exeTime = this.timeToStamp(this.form.exeTime)
+          }
           for (const v of this.list) {
-            if (v.id === this.temp.id) {
-              objectMerge(v, this.temp);
+            if (v.id === this.form.id) {
+              objectMerge(v, this.form);
               break;
             }
           }
-          this.dialogFormVisible = false;
+          this.editorDialogVisable = false;
           this.$notify({
             title: '成功',
             message: '更新成功',
@@ -288,35 +388,30 @@
             duration: 2000
           });
         },
-        resetTemp() {
-          this.temp = {
-            id: undefined,
-            importance: 0,
-            remark: '',
-            timestamp: 0,
-            title: '',
-            status: 'published',
-            type: ''
-          };
-        },
-        handleFetchPv(pv) {
-          fetchPv(pv).then(response => {
-            this.pvData = response.pvData
-            this.dialogPvVisible = true
-          })
-        },
-        formatJson(filterVal, jsonData) {
-          return jsonData.map(v => filterVal.map(j => {
-            if (j === 'timestamp') {
-              return parseTime(v[j])
-            } else {
-              return v[j]
-            }
-          }))
+        reset() {
+          objectMerge(this.form, this.temp)          
         },
         showStatusFilter(value, row) {
           return row.status === value
+        },
+        timeToStamp(key) {
+          if (!/\d{10}/ig.test(this.form[key])) {
+            this.form[key] = new Date(this.form[key]).getTime()
+          }
         }
       }
     }
 </script>
+
+<style lang="scss">
+  @import "src/styles/mixin.scss";
+
+  .form-container {
+      @include flex;
+      @include flex-justify;
+      padding: 20px;
+      .form {
+        width: 500px;
+      }
+  }
+</style>

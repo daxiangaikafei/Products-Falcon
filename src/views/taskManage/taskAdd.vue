@@ -1,6 +1,5 @@
 <template>
   <div class="form-container">
-
     <el-form ref="form" :model="form" label-width="110px" class="form">
     <el-form-item label="任务名称">
       <el-input v-model="form.jobName"></el-input>
@@ -83,6 +82,7 @@
     data() {
       return {
         form: {
+          id: undefined,
           name: '',
           region: '',
           date1: '',
@@ -142,7 +142,7 @@
 </script>
 
 <style lang="scss">
-    @import "src/styles/mixin.scss";
+  @import "src/styles/mixin.scss";
 
   .form-container {
       @include flex;
