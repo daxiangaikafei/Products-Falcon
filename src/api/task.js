@@ -7,3 +7,11 @@ export function fetchList(query) {
     params: query
   });
 }
+
+export function fetchSubTaskList(query) {
+  return fetch({
+    url: '/task/subList',
+    method: 'get',
+    params: query
+  });
+}
