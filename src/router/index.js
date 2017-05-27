@@ -26,6 +26,7 @@ const GroupAdd = resolve => require(['../views/taskManage/groupAdd'], resolve);
 /* Task View*/
 const SubTaskView = resolve => require(['../views/taskView/subTaskView'], resolve);
 const DutrationView = resolve => require(['../views/taskView/durationView'], resolve);
+const LogView = resolve => require(['../views/taskView/logView'], resolve);
 
 /* Introduction*/
 const Introduction = resolve => require(['../views/introduction/index'], resolve);
@@ -63,6 +64,7 @@ export default new Router({
     { path: '/reset', component: reset, hidden: true },
     { path: '/404', component: Err404, hidden: true },
     { path: '/401', component: Err401, hidden: true },
+    // { path: '/logView/:taskId', name: 'logView', component: LogView},
     // {
     //   path: '/',
     //   component: Layout,
@@ -105,7 +107,7 @@ export default new Router({
           { path: 'subTaskView', component: SubTaskView, name: '查看子任务状态' },
           { path: 'taskAdd', component: TaskAdd, name: '树形血缘图' },
           { path: 'dutrationView', component: DutrationView, name: '调度执行时间' },
-          { path: 'groupAdd', component: GroupAdd, name: '执行日志' }
+          { path: 'logView/:taskId', component: LogView, name: 'logView',hidden:true }
       ]
     },
     // {
