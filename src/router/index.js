@@ -20,6 +20,12 @@ const Index = resolve => require(['../views/index/index'], resolve);
 /* Task Manage*/
 const TaskManage = resolve => require(['../views/taskManage/index'], resolve);
 const TaskAdd = resolve => require(['../views/taskManage/taskAdd'], resolve);
+const GroupManage = resolve => require(['../views/taskManage/groupManage'], resolve);
+const GroupAdd = resolve => require(['../views/taskManage/groupAdd'], resolve);
+
+/* Task View*/
+const SubTaskView = resolve => require(['../views/taskView/subTaskView'], resolve);
+const DutrationView = resolve => require(['../views/taskView/durationView'], resolve);
 
 /* Introduction*/
 const Introduction = resolve => require(['../views/introduction/index'], resolve);
@@ -84,8 +90,22 @@ export default new Router({
       children: [
           { path: 'taskManage', component: TaskManage, name: '编辑调度任务' },
           { path: 'taskAdd', component: TaskAdd, name: '新增调度任务' },
-          { path: 'line', component: LineMarker, name: '管理任务组' },
-          { path: 'line', component: LineMarker, name: '新增任务组' }
+          { path: 'groupManage', component: GroupManage, name: '管理任务组' },
+          { path: 'groupAdd', component: GroupAdd, name: '新增任务组' }
+      ]
+    },
+    {
+      path: '/view',
+      component: Layout,
+      redirect: '/view/subTaskView',
+      name: '查看调度任务',
+      icon: 'activity',
+      meta: { role: ['admin'] },
+      children: [
+          { path: 'subTaskView', component: SubTaskView, name: '查看子任务状态' },
+          { path: 'taskAdd', component: TaskAdd, name: '树形血缘图' },
+          { path: 'dutrationView', component: DutrationView, name: '调度执行时间' },
+          { path: 'groupAdd', component: GroupAdd, name: '执行日志' }
       ]
     },
     // {
