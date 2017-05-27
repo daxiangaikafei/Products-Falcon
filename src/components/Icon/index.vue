@@ -1,6 +1,6 @@
 <template>
   <svg
-      v-bind:style="styles"
+      :style="styles"
       class="icon">
       <use :xlink:href="`${svgUrl}#icon-${iconName}`"></use>
     </svg>
@@ -23,7 +23,7 @@
         type: String,
         default: 'currentColor'
       },
-      style: {
+      inputStyle: {
         type: Object,
         default() {
           return {}
@@ -36,7 +36,7 @@
           width: this.size + 'px',
           height: this.size + 'px',
           fill: this.color,
-          ...this.style
+          ...this.inputStyle
         },
         svgUrl
       }
