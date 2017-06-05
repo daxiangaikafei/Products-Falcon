@@ -41,7 +41,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="220px" label="组描述" sortable show-overflow-tooltip prop="groupDesc">
+      <el-table-column min-width="220px" label="组描述" show-overflow-tooltip prop="groupDesc">
         <template scope="scope" >
           <!--<el-popover
             title="组描述"
