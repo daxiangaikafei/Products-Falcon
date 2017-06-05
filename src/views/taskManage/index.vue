@@ -187,7 +187,7 @@
               <el-date-picker type="date" placeholder="选择日期" v-model="form.startDate" style="width: 50%;" @change="timeToStamp('startDate')"></el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="success" >保存</el-button>
+            <!--<el-button type="success" >保存</el-button>-->
             <el-button type="primary" @click="update">提交</el-button>
             <el-button type="warning" @click="reset">重置</el-button>
             <el-button @click="editorDialogVisable = false">取消</el-button>

@@ -68,7 +68,7 @@
         <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 50%;"></el-date-picker>
     </el-form-item>
     <el-form-item>
-      <el-button type="success" >保存</el-button>
+      <!--<el-button type="success" >保存</el-button>-->
       <el-button type="primary" @click="onSubmit">提交</el-button>
       <el-button type="warning" >重置</el-button>
       <el-button>取消</el-button>
