@@ -49,7 +49,7 @@
         </el-col>-->
     </el-form-item>
     <el-form-item label="所属组">
-      <el-input v-model="form.group"></el-input>
+      <el-input v-model="form.groupName"></el-input>
     </el-form-item>
     <el-form-item label="运行周期">
       <el-select v-model="form.cycle" placeholder="请选择">
@@ -62,10 +62,10 @@
       </el-select>
     </el-form-item>
     <el-form-item label="运行时间点">
-        <el-time-picker type="fixed-time" placeholder="选择时间" v-model="form.date2" format="HH:mm" style="width: 50%;"></el-time-picker>
+        <el-time-picker type="fixed-time" placeholder="选择时间" v-model="form.exeTime" format="HH:mm" style="width: 50%;" @change="timeHandler('exeTime')"></el-time-picker>
     </el-form-item>
     <el-form-item label="首次运行日期">
-        <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 50%;"></el-date-picker>
+        <el-date-picker type="date" placeholder="选择日期" v-model="form.startDate" style="width: 50%;" @change="timeHandler('startDate')"></el-date-picker>
     </el-form-item>
     <el-form-item>
       <!--<el-button type="success" >保存</el-button>-->
@@ -78,24 +78,26 @@
 </template>
 
 <script>
+  import { timeToStamp } from 'utils'
+
   export default {
     data() {
       return {
         form: {
           id: undefined,
-          name: '',
-          region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: '',
+          jobName: '',
+          scriptName: '',
+          groupId: 0,
+          groupName: '',
           db: 'SSA',
           cycle: 'daily',
           depend: [],
-          dependList: []
-
+          exeTime: '',
+          startDate: '',
+          endDate: '',
+          updateTime: '',   
+          status: 'Waiting',
+          author: ''                     
         },
         loading: false,
         options: [{
@@ -136,7 +138,11 @@
         } else {
           this.options = [];
         }
+      },
+      timeHandler(key) {
+        timeToStamp(key, this.form)
       }
+
     }
   }
 </script>
