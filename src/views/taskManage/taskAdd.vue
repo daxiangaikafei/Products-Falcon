@@ -111,7 +111,7 @@
         states: ["HTML","CSS","JavaScript","PHP", "Java", "Ruby",
         "Python", "NodeJS", "C","C++", "C#", "Perl","Swift", "Go", "R", "Object-C",
         "Visual Basic", "SQL", "Scala", "Lua","Dart", "Lisp","Bash"]
-      
+
       }
     },
     mounted() {
