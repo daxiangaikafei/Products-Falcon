@@ -45,6 +45,7 @@
       name: 'treeView',
       data() {
         return {
+          count: 0,
           trees: [],
           lines: [],
           checkedIds:[],
@@ -52,13 +53,13 @@
             [{
               id: 1,
               checked: false,
-              childs: [21],
+              childs: [22,23],
               childshow: true,
               value: "1"
             },{
               id: 2,
               checked: false,
-              childs: [21,22],
+              childs: [21],
               childshow: false,
               value: "2"
             },{
@@ -178,6 +179,8 @@
                 }
               }
             }
+            // _this.count ++;
+            // console.log(_this.count);
           });
 
         },
@@ -211,6 +214,7 @@
           let rederTrees = [];
           let rederLines = [];
           let treeChart = document.getElementById("treeChart");
+          _this.count = 0;
           treeDatas.map(function(n,i){
             _this.treeChildShow(n);
           });
@@ -301,12 +305,19 @@
             });
             this.treeHides = [];
 
+            let _haverepeat = [];
             this.treeDatas[_index].map(function(item,index){
               if(item.childs && item.childs.length > 0){
                 if(_isshow){
                   _childs.map(function(childid,j){
+                    // console.log(item.childs.indexOf(childid) > -1 , _childs, childid);
                     if(item.childs.indexOf(childid) > -1){
                       item.childshow = true;
+                      _haverepeat.push(childid);
+                    }else{
+                      if(_haverepeat.indexOf(childid) > -1){
+                        item.childshow = true;
+                      }
                     }
                   });
                 }else{
