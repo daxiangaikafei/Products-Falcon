@@ -45,12 +45,13 @@ for (let i = 0; i < subCount; i++) {
 
 export default {
   getList: config => {
-    const { type, jobName, author, page, limit, sort } = config.params;
+    const { jobName, author, page, limit, sort, searchStr } = config.params;
     let mockList = List.filter(item => {
       // if (importance && item.importance !== importance) return false;
       // if (type && item.type !== type) return false;
-      if (jobName && item.jobName.toUpperCase().indexOf(jobName.toUpperCase()) < 0) return false;
-      if (author && item.author.toUpperCase().indexOf(author.toUpperCase()) < 0) return false;
+      if (searchStr && (item.jobName.toUpperCase().indexOf(searchStr.toUpperCase()) < 0 && item.author.toUpperCase().indexOf(searchStr.toUpperCase()) < 0)) return false;
+      // if (jobName && item.jobName.toUpperCase().indexOf(jobName.toUpperCase()) < 0) return false;
+      // if (author && item.author.toUpperCase().indexOf(author.toUpperCase()) < 0) return false;
       return true;
     });
     if (sort === '-id') {
@@ -69,10 +70,9 @@ export default {
     })
   },
   getSubList: config => {
-    const { type, jobName, author, page, limit, sort } = config.params;
+    const { jobName, author, page, limit, sort, searchStr } = config.params;
     let mockList = subList.filter(item => {
-      if (jobName && item.jobName.toUpperCase().indexOf(jobName.toUpperCase()) < 0) return false;
-      if (author && item.author.toUpperCase().indexOf(author.toUpperCase()) < 0) return false;
+        if (searchStr && (item.jobName.toUpperCase().indexOf(searchStr.toUpperCase()) < 0 && item.author.toUpperCase().indexOf(searchStr.toUpperCase()) < 0)) return false;
       return true;
     });
 
