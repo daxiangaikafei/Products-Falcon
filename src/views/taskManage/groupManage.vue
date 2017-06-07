@@ -41,7 +41,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="220px" label="组描述" sortable show-overflow-tooltip prop="groupDesc">
+      <el-table-column min-width="220px" label="组描述" show-overflow-tooltip prop="groupDesc">
         <template scope="scope" >
           <!--<el-popover
             title="组描述"
@@ -109,13 +109,13 @@
           </el-form-item>
 
           <el-form-item label="首次运行日期">
-              <el-date-picker type="date" placeholder="选择日期" v-model="form.createDate" style="width: 50%;" @change="timeToStamp('createDate')"></el-date-picker>
+              <el-date-picker type="date" placeholder="选择日期" v-model="form.createDate" style="width: 50%;" @change="timeHandler('createDate')"></el-date-picker>
           </el-form-item>
           <el-form-item label="调度结束日期">
-              <el-date-picker type="date" placeholder="选择日期" v-model="form.loseDate" style="width: 50%;" @change="timeToStamp('loseDate')"></el-date-picker>
+              <el-date-picker type="date" placeholder="选择日期" v-model="form.loseDate" style="width: 50%;" @change="timeHandler('loseDate')"></el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="success" >保存</el-button>
+            <!--<el-button type="success" >保存</el-button>-->
             <el-button type="primary" @click="update">提交</el-button>
             <el-button type="warning" @click="reset">重置</el-button>
             <el-button @click="editorDialogVisable = false">取消</el-button>
@@ -129,7 +129,7 @@
 
 <script>
     import { fetchList } from 'api/group';
-    import { parseTime, objectMerge } from 'utils';
+    import { parseTime, objectMerge, timeToStamp } from 'utils';
 
     export default {
       name: 'GroupManager',
@@ -251,14 +251,12 @@
         },
 
         update() {
-          this.form.updateTime = new Date().getTime();
-          // if (!/d+/ig.test(this.form[key])) {
-          //   this.form[key] = this.timeToStamp(this.form[key])
-          // }
-          for (const v of this.list) {
+          this.form.updateTime = +new Date()
+
+          for (let v of this.list) {
             if (v.id === this.form.id) {
-              objectMerge(v, this.form);
-              break;
+              objectMerge(v, this.form)
+              break
             }
           }
           this.editorDialogVisable = false;
@@ -275,10 +273,8 @@
         showStatusFilter(value, row) {
           return row.status === value
         },
-        timeToStamp(key) {
-          if (!/\d{10}/ig.test(this.form[key])) {
-            this.form[key] = new Date(this.form[key]).getTime()
-          }
+        timeHandler(key) {
+          timeToStamp(key, this.form)
         }
       }
     }

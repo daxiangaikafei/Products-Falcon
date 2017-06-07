@@ -21,13 +21,13 @@
       </el-form-item>
 
       <el-form-item label="首次运行日期">
-          <el-date-picker type="date" placeholder="选择日期" v-model="form.createDate" style="width: 50%;" @change="timeToStamp('createDate')"></el-date-picker>
+          <el-date-picker type="date" placeholder="选择日期" v-model="form.createDate" style="width: 50%;" @change="timeHandler('createDate')"></el-date-picker>
       </el-form-item>
       <el-form-item label="调度结束日期">
-          <el-date-picker type="date" placeholder="选择日期" v-model="form.loseDate" style="width: 50%;" @change="timeToStamp('loseDate')"></el-date-picker>
+          <el-date-picker type="date" placeholder="选择日期" v-model="form.loseDate" style="width: 50%;" @change="timeHandler('loseDate')"></el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="success" >保存</el-button>
+        <!--<el-button type="success" >保存</el-button>-->
         <el-button type="primary" @click="onSubmit">提交</el-button>
         <el-button type="warning" native-type="reset">重置</el-button>
         <el-button @click="editorDialogVisable = false">取消</el-button>
@@ -37,6 +37,8 @@
 </template>
 
 <script>
+  import { timeToStamp } from 'utils'
+
   export default {
     data() {
       return {
@@ -59,11 +61,9 @@
       onSubmit() {
         console.log('submit!');
       },
-      timeToStamp(key) {
-          if (!/\d{10}/ig.test(this.form[key])) {
-            this.form[key] = new Date(this.form[key]).getTime()
-          }
-        }
+      timeHandler(key) {
+        timeToStamp(key, this.form)
+      }
     }
   }
 </script>
