@@ -27,6 +27,7 @@ const GroupAdd = resolve => require(['../views/taskManage/groupAdd'], resolve);
 const SubTaskView = resolve => require(['../views/taskView/subTaskView'], resolve);
 const DutrationView = resolve => require(['../views/taskView/durationView'], resolve);
 const LogView = resolve => require(['../views/taskView/logView'], resolve);
+const TreeView = resolve => require(['../views/taskView/treeView'], resolve);
 
 /* Introduction*/
 const Introduction = resolve => require(['../views/introduction/index'], resolve);
@@ -79,7 +80,7 @@ export default new Router({
       redirect: '/index',
       icon: 'home',
       noDropdown: true,
-      meta: { role: ['admin','editor','developer'] }, 
+      meta: { role: ['admin','editor','developer'] },
       children: [{ path: 'index', component: Index, name: '首页' }]
     },
     {
@@ -105,7 +106,7 @@ export default new Router({
       meta: { role: ['admin'] },
       children: [
           { path: 'subTaskView', component: SubTaskView, name: '查看子任务状态' },
-          { path: 'taskAdd', component: TaskAdd, name: '树形血缘图' },
+          { path: 'treeView', component: TreeView, name: '树形血缘图' },
           { path: 'dutrationView', component: DutrationView, name: '调度执行时间' },
           { path: 'logView/:taskId', component: LogView, name: 'logView',hidden:true }
       ]
@@ -148,7 +149,7 @@ export default new Router({
       redirect: 'noredirect',
       name: '图标库',
       icon: 'diamond',
-      noDropdown: true,      
+      noDropdown: true,
       children: [ { path: 'icon', component: IconDoc, name: '图标库' }]
     },
     // {
