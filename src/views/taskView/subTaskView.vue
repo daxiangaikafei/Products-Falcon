@@ -76,44 +76,7 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" v-model="editorDialogVisable">
-      <div class="form-container">
-          <el-form ref="form" :model="form" label-width="110px" class="form">
-          <el-form-item label="任务组名">
-            <el-input v-model="form.groupName"></el-input>
-          </el-form-item>
-          <el-form-item label="操作人">
-            <el-input v-model="form.author"></el-input>
-          </el-form-item>
-          <el-form-item label="数据库仓库层级">
-            <el-select v-model="form.db" placeholder="请选择">
-              <el-option label="SSA" value="SSA"></el-option>
-              <el-option label="SOR" value="SOR"></el-option>
-              <el-option label="DPA" value="DPA"></el-option>
-              <el-option label="DM" value="DM"></el-option>
-            </el-select>
-          </el-form-item>
- 
-          <el-form-item label="组描述">
-            <el-input type="textarea" v-model="form.groupDesc"></el-input>
-          </el-form-item>
-
-          <el-form-item label="首次运行日期">
-              <el-date-picker type="date" placeholder="选择日期" v-model="form.createDate" style="width: 50%;" @change="timeToStamp('createDate')"></el-date-picker>
-          </el-form-item>
-          <el-form-item label="调度结束日期">
-              <el-date-picker type="date" placeholder="选择日期" v-model="form.loseDate" style="width: 50%;" @change="timeToStamp('loseDate')"></el-date-picker>
-          </el-form-item>
-          <el-form-item>
-            <!--<el-button type="success" >保存</el-button>-->
-            <el-button type="primary" @click="update">提交</el-button>
-            <el-button type="warning" @click="reset">重置</el-button>
-            <el-button @click="editorDialogVisable = false">取消</el-button>
-          </el-form-item>
-        </el-form>
-      </div>
-    </el-dialog>
-
+    
   </div>
 </template>
 
@@ -151,10 +114,6 @@
           importanceOptions: [1, 2, 3],
           statusOptions: ['Success', 'Running', 'Falled', 'Waiting'],
           dialogStatus: '',
-          textMap: {
-            update: '编辑',
-            create: '创建'
-          },
           editorDialogVisable: false,
           showAuditor: false,
           tableKey: 0,
@@ -226,46 +185,8 @@
           this.listQuery.start = parseInt(+time[0] / 1000);
           this.listQuery.end = parseInt((+time[1] + 3600 * 1000 * 24) / 1000);
         },
-        handleModifyStatus(row, status) {
-          this.$message({
-            message: '操作成功',
-            type: 'success'
-          });
-          row.status = status;
-        },
-        handleUpdate(row) {
-          objectMerge(this.form, row)
-          objectMerge(this.temp, this.form)
-          this.dialogStatus = 'update';
-          this.editorDialogVisable = true;
-        },
-
-        update() {
-          this.form.updateTime = new Date().getTime();
-          for (const v of this.list) {
-            if (v.id === this.form.id) {
-              objectMerge(v, this.form);
-              break;
-            }
-          }
-          this.editorDialogVisable = false;
-          this.$notify({
-            title: '成功',
-            message: '更新成功',
-            type: 'success',
-            duration: 2000
-          });
-        },
-        reset() {
-          objectMerge(this.form, this.temp)          
-        },
         showStatusFilter(value, row) {
           return row.status === value
-        },
-        timeToStamp(key) {
-          if (!/\d{10}/ig.test(this.form[key])) {
-            this.form[key] = new Date(this.form[key]).getTime()
-          }
         }
       }
     }
