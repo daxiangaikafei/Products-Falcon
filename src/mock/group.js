@@ -21,10 +21,9 @@ for (let i = 0; i < count; i++) {
 
 export default {
   getList: config => {
-    const { type, groupName, author, page, limit, sort } = config.params;
+    const { type, groupName, author, page, limit, sort, searchStr } = config.params;
     let mockList = List.filter(item => {
-      if (groupName && item.groupName.toUpperCase().indexOf(groupName.toUpperCase()) < 0) return false;
-      if (author && item.author.toUpperCase().indexOf(author.toUpperCase()) < 0) return false;
+        if (searchStr && (item.groupName.toUpperCase().indexOf(searchStr.toUpperCase()) < 0 && item.author.toUpperCase().indexOf(searchStr.toUpperCase()) < 0)) return false;
       return true;
     });
     if (sort === '-id') {

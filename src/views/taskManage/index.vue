@@ -1,10 +1,10 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" placeholder="Job_name" v-model="listQuery.jobName">
+      <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="Job_name、提交人" v-model="listQuery.searchStr">
       </el-input> 
-      <el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.author"> 
-      </el-input>
+      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.author"> 
+      </el-input>-->
       <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" v-waves icon="circle-close" @click="clearFilter">清除</el-button>
     </div>
@@ -216,7 +216,8 @@
             jobName: undefined,
             author: undefined,
             sort: '+id',
-            status: ''
+            status: '',
+            searchStr: ''
           },
           temp: {
             id: undefined,
@@ -331,8 +332,7 @@
           this.getList();
         },
         clearFilter() {
-          this.listQuery.name = ''
-          this.listQuery.author = ''
+          this.listQuery.searchStr = ''
           this.getList();
         },
         handleSizeChange(val) {
