@@ -6,14 +6,11 @@
         <h1 class="text-jumbo text-ginormous">Oops!</h1>
         <h2>你没有权限去该页面</h2>
         <ul class="list-unstyled">
-          <li>或者你可以去:</li>
-          <li class="link-type">
-            <router-link to="/">首页</router-link>
-          </li>
+          <li><router-link to="/">回首页</router-link></li>
         </ul>
       </el-col>
       <el-col :span="12">
-        <img :src="errGif" width="313" height="428" alt="Girl has dropped her ice cream.">
+        <Icon icon-name="construction" size="300" color="#1482f0"/>
       </el-col>
     </el-row>
   </div>
@@ -24,9 +21,6 @@
     export default {
       data() {
         return {
-          errGif: errGif + '?' + +new Date(),
-          ewizardClap: 'https://wpimg.wallstcn.com/007ef517-bafd-4066-aae4-6883632d9646',
-          dialogVisible: false
         }
       },
       methods: {
@@ -42,7 +36,7 @@
         width: 800px;
         margin: 100px auto;
         .pan-back-btn {
-            background: #008489;
+            background: #1482f0;
             color: #fff;
         }
         .pan-gif {
@@ -64,7 +58,7 @@
                 padding-bottom: 5px;
             }
             a {
-                color: #008489;
+                color: #1482f0;
                 text-decoration: none;
                 &:hover {
                     text-decoration: underline;
