@@ -108,7 +108,7 @@ export default new Router({
           { path: 'subTaskView', component: SubTaskView, name: '查看子任务状态' },
           { path: 'treeView', component: TreeView, name: '树形血缘图' },
           { path: 'dutrationView', component: DutrationView, name: '调度执行时间' },
-          { path: 'logView/:taskId', component: LogView, name: 'logView',hidden:true }
+          { path: 'logView/:taskId', component: LogView, name: 'Log', hidden:true }
       ]
     },
     // {
