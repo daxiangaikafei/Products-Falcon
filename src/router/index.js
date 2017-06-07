@@ -77,11 +77,12 @@ export default new Router({
     {
       path: '',
       component: Layout,
-      redirect: '/index',
+      redirect: '/manage/taskManage',
       icon: 'home',
       noDropdown: true,
       meta: { role: ['admin','editor','developer'] },
-      children: [{ path: 'index', component: Index, name: '首页' }]
+      hidden:true,
+      children: [{ path: 'index', component: Index, name: '首页',  }]
     },
     {
       path: '/manage',
