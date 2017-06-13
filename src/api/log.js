@@ -1,9 +1,9 @@
 import { fetch } from 'utils/fetch';
 
-export function fetchLog(query) {
+export function fetchLog(startIndex, endIndex) {
   return fetch({
-    url: '/log/detail',
-    method: 'get',
-    params: query
+    url: '/falcon/joblog/queryLogs.html',
+    method: 'post',
+    data: {startIndex, endIndex}
   });
 }

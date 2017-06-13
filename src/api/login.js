@@ -1,30 +1,44 @@
 import { fetch } from 'utils/fetch';
 
 export function loginByEmail(email, password) {
-  const data = {
-    email,
-    password
-  };
   return fetch({
-    url: '/login/loginbyemail',
+    url: '/falcon/user/login.html',
+    method: 'post',
+    data : {
+      userName:email,
+      password
+    }
+  })
+}
+
+export function changePwd(password, newPwd) {
+  const data = {
+    password,
+    newPwd
+  }
+  return fetch({
+    url: '/falcon/user/changpwd.html',
     method: 'post',
     data
-  });
+  })
 }
 
 export function logout() {
   return fetch({
-    url: '/login/logout',
+    url: '/falcon/user/logout.html',
     method: 'post'
-  });
+  })
 }
 
 
-export function getInfo(token) {
+export function getInfo(email, password) {
   return fetch({
-    url: '/user/info',
-    method: 'get',
-    params: { token }
-  });
+    url: '/falcon/user/login.html',
+    method: 'post',
+    data : {
+      userName:email,
+      password
+    }
+  })
 }
 
