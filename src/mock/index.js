@@ -15,18 +15,18 @@ mock.onGet('/user/info').reply(loginAPI.getInfo);
 // task manage
 mock.onPost('/falcon/job/queryJobList.html').reply(taskAPI.getList);
 mock.onPost('/falcon/job/save.html').reply(taskAPI.saveOrUpdate);
-mock.onPost('/falcon/job/jobaction.html').reply(taskAPI.getList);
-mock.onPost('/falcon/job/delete.html').reply(taskAPI.getList);
+mock.onPost('/falcon/job/jobaction.html').reply(taskAPI.runOrStop);
+mock.onPost('/falcon/job/delete.html').reply(taskAPI.delete);
 
-mock.onGet('/task/subList').reply(taskAPI.getSubList);
+mock.onPost('/task/subList').reply(taskAPI.getSubList);
 
 // group manage
-mock.onGet('/falcon/jobproject/queryProjectList.html').reply(groupAPI.getList);
-mock.onGet('/falcon/jobproject/save.html').reply(groupAPI.getList);
-mock.onGet('/falcon/jobproject/delete.html').reply(groupAPI.getList);
+mock.onPost('/falcon/jobproject/queryProjectList.html').reply(groupAPI.getList);
+mock.onPost('/falcon/jobproject/save.html').reply(groupAPI.saveOrUpdate);
+mock.onPost('/falcon/jobproject/delete.html').reply(groupAPI.delete);
 
 // log
-mock.onGet('/falcon/joblog/queryLogs.html').reply(logAPI.getDetail);
+mock.onPost('/falcon/joblog/queryLogs.html').reply(logAPI.getDetail);
 
 // search
 mock.onGet('/search/user').reply(searchAPI.searchUser);

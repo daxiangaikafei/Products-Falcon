@@ -7,38 +7,69 @@ const count = 100;
 for (let i = 0; i < count; i++) {
   List.push(Mock.mock({
     id: '@increment',
-    groupName: /[A-Z]{3}_[A-Z]{1}_TASK/,    
-    createDate: +Mock.Random.time('T'),
-    loseDate: +Mock.Random.time('T'),
+    name: /[A-Z]{3}_[A-Z]{1}_TASK/,    
+    createTime: Mock.Random.date(),
+    beginDate: +Mock.Random.time('T'),
+    endDate: Mock.Random.date(),
     updateTime: +Mock.Random.date('T'),
-    'author|1': ['ROOT','ADMIN','DEVELOP'],
+    'operator|1': ['ROOT','ADMIN','DEVELOP'],
     'status|1': ['Success', 'Running', 'Falled', 'Waiting'],
-    'db|1': ['SSA','SOR','DPA','DM'],
-    'groupDesc': Mock.Random.paragraph(1,2),
+    'dataLevel|1': ['SSA','SOR','DPA','DM'],
+    'descripe': Mock.Random.paragraph(1,2),
     pageviews: '@integer(300, 5000)'
   }));
 }
 
 export default {
   getList: config => {
-    const { type, groupName, author, page, limit, sort, searchStr } = config.params;
+    const { page, rows, keyword } = JSON.parse(config.data);
     let mockList = List.filter(item => {
-        if (searchStr && (item.groupName.toUpperCase().indexOf(searchStr.toUpperCase()) < 0 && item.author.toUpperCase().indexOf(searchStr.toUpperCase()) < 0)) return false;
+        if (keyword && (item.name.toUpperCase().indexOf(keyword.toUpperCase()) < 0 && item.operator.toUpperCase().indexOf(keyword.toUpperCase()) < 0)) return false;
       return true;
     });
-    if (sort === '-id') {
-      mockList = mockList.reverse()
-    }
+    // if (sort === '-id') {
+    //   mockList = mockList.reverse()
+    // }
 
-    const pageList = mockList.filter((item, index) => index < limit * page && index >= limit * (page - 1));
-
+    const pageList = mockList.filter((item, index) => index < rows * page && index >= rows * (page - 1));
+    const result = {
+          "code": 0,
+          "data": {
+            "pageCount": 10,
+            "pageIndex": page,
+            "pageSize": rows,
+            "rows": pageList,
+            "total": mockList.length
+          },
+          "message": "",
+          "success": true
+        }
     return new Promise(resolve => {
       setTimeout(() => {
-        resolve([200, {
-          total: mockList.length,
-          items: pageList
-        }]);
+        resolve([200, result]);
       }, 300);
+    })
+  },
+
+  saveOrUpdate: config => {
+    const data = JSON.parse(config.data)
+    return new Promise(resolve => {
+      console.log(data)
+      resolve([200, {
+        success: true,
+        message: ''
+      }])
+    })
+  },
+
+  delete: config => {
+    const data = JSON.parse(config.data)
+    return new Promise(resolve => {
+      console.log(data)
+      resolve([200, {
+        success: true,
+        message: ''
+      }])
     })
   }
 };

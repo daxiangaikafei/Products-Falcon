@@ -104,5 +104,27 @@ export default {
         message: ''
       }])
     })
+  },
+
+  runOrStop: config => {
+    const data = JSON.parse(config.data)
+    return new Promise(resolve => {
+      console.log(data)
+      resolve([200, {
+        success: true,
+        message: ''
+      }])
+    })
+  },
+
+  delete: config => {
+    const data = JSON.parse(config.data)
+    return new Promise(resolve => {
+      console.log(data)
+      resolve([200, {
+        success: true,
+        message: ''
+      }])
+    })
   }
 };
