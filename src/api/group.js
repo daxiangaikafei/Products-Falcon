@@ -4,7 +4,7 @@ export function fetchList(query) {
   return fetch({
     url: '/falcon/jobproject/queryProjectList.html',
     method: 'post',
-    data: {query}
+    data: query
   });
 }
 
@@ -12,7 +12,7 @@ export function saveOrUpdate(form) {
   return fetch({
     url: '/falcon/jobproject/save.html',
     method: 'post',
-    data: {form}
+    data: form
   });
 }
 

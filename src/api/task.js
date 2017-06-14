@@ -18,7 +18,7 @@ export function saveOrUpdate(form) {
 
 export function runOrStop(actionName, jobIds) {
   return fetch({
-    url: '/falcon/job/save.html',
+    url: '/falcon/job/jobaction.html',
     method: 'post',
     data: {
       actionName, jobIds
@@ -28,7 +28,7 @@ export function runOrStop(actionName, jobIds) {
 
 export function deleteJob(jobId) {
   return fetch({
-    url: '/falcon/job/save.html',
+    url: '/falcon/job/delete.html',
     method: 'post',
     data: {
       jobId
@@ -39,7 +39,7 @@ export function deleteJob(jobId) {
 export function fetchSubTaskList(query) {
   return fetch({
     url: '/task/subList',
-    method: 'get',
+    method: 'post',
     data: query
   });
 }
