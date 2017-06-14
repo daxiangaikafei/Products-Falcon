@@ -19,11 +19,9 @@
                     登录
                 </el-button>
             </el-form-item>
-            <div class='tips'>admin账号为:admin@qbao.com 密码随便填</div>
-            <div class='tips'>editor账号:editor@qbao.com 密码随便填</div>
-            <router-link to="/sendpwd" class="forget-pwd">
+            <!--<router-link to="/sendpwd" class="forget-pwd">
                 忘记密码
-            </router-link>
+            </router-link>-->
         </el-form>
     </div>
 </template>
@@ -52,12 +50,12 @@
         };
         return {
           loginForm: {
-            email: 'admin@qbao.com',
-            password: ''
+            email: 'admin',
+            password: '123456'
           },
           loginRules: {
             email: [
-                { required: true, trigger: 'blur', validator: validateEmail }
+                { required: true, trigger: 'blur' }
             ],
             password: [
                 { required: true, trigger: 'blur', validator: validatePass }
@@ -82,6 +80,7 @@
                 this.$router.push({ path: '/' });
                 // this.showDialog = true;
               }).catch(err => {
+                console.log('err',err);
                 this.$message.error(err);
                 this.loading = false;
               });
