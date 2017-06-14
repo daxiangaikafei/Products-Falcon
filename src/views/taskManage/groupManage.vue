@@ -1,9 +1,9 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="任务组名、提交人" v-model="listQuery.searchStr">
+      <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="任务组名、提交人" v-model="listQuery.keyword">
       </el-input> 
-      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.author"> 
+      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.operator"> 
       </el-input>-->
       <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" v-waves icon="circle-close" @click="clearFilter">清除</el-button>
@@ -17,21 +17,21 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="140px" label="任务组名" sortable prop="groupName" sortable>
+      <el-table-column min-width="140px" label="任务组名" sortable prop="name" sortable>
         <template scope="scope">
-          <a href='#' >{{scope.row.groupName}}</a>
+          <a href='#' >{{scope.row.name}}</a>
         </template>
       </el-table-column>
 
-      <el-table-column width="160px" align="center" label="创建日期" prop="createDate" sortable>
+      <el-table-column width="160px" align="center" label="创建日期" prop="createTime" sortable>
         <template scope="scope">
-          <span>{{scope.row.createDate | parseTime('{y}-{m}-{d}')}}</span>
+          <span>{{scope.row.createTime}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="160px" align="center" label="失效日期" prop="loseDate" sortable>
+      <el-table-column width="160px" align="center" label="失效日期" prop="endDate" sortable>
         <template scope="scope">
-          <span>{{scope.row.loseDate | parseTime('{y}-{m}-{d}')}}</span>
+          <span>{{scope.row.endDate}}</span>
         </template>
       </el-table-column>
 
@@ -41,15 +41,15 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="220px" label="组描述" show-overflow-tooltip prop="groupDesc">
+      <el-table-column min-width="220px" label="组描述" show-overflow-tooltip prop="descripe">
         <template scope="scope" >
           <!--<el-popover
             title="组描述"
             placement="left"
             width="230"
             trigger="hover"
-            :content="scope.row.groupDesc">-->
-            <span class="line-more" slot="reference" >{{scope.row.groupDesc}}</span>          
+            :content="scope.row.descripe">-->
+            <span class="line-more" slot="reference" >{{scope.row.descripe}}</span>          
           <!--</el-popover>-->
         </template>
       </el-table-column>
@@ -59,13 +59,13 @@
         :filter-method="showStatusFilter"
         filter-placement="bottom-end">
         <template scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">{{scope.row.status}}</el-tag>
+          <el-tag v-if="scope.row.status" :type="scope.row.status | statusFilter">{{scope.row.status}}</el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column width="110px" align="center" label="提交人" sortable prop="author">
+      <el-table-column width="110px" align="center" label="提交人" sortable prop="operator">
         <template scope="scope">
-          <span>{{scope.row.author}}</span>
+          <span>{{scope.row.operator}}</span>
         </template>
       </el-table-column>
 
@@ -90,13 +90,13 @@
       <div class="form-container">
           <el-form ref="form" :model="form" label-width="110px" class="form">
           <el-form-item label="任务组名">
-            <el-input v-model="form.groupName"></el-input>
+            <el-input v-model="form.name"></el-input>
           </el-form-item>
           <el-form-item label="操作人">
-            <el-input v-model="form.author"></el-input>
+            <el-input v-model="form.operator"></el-input>
           </el-form-item>
           <el-form-item label="数据库仓库层级">
-            <el-select v-model="form.db" placeholder="请选择">
+            <el-select v-model="form.dataLevel" placeholder="请选择">
               <el-option label="SSA" value="SSA"></el-option>
               <el-option label="SOR" value="SOR"></el-option>
               <el-option label="DPA" value="DPA"></el-option>
@@ -105,14 +105,14 @@
           </el-form-item>
  
           <el-form-item label="组描述">
-            <el-input type="textarea" v-model="form.groupDesc"></el-input>
+            <el-input type="textarea" v-model="form.descripe"></el-input>
           </el-form-item>
 
           <el-form-item label="首次运行日期">
-              <el-date-picker type="date" placeholder="选择日期" v-model="form.createDate" style="width: 50%;" @change="timeHandler('createDate')"></el-date-picker>
+              <el-date-picker type="date" placeholder="选择日期" v-model="form.createTime" style="width: 50%;" @change="timeHandler('createTime')"></el-date-picker>
           </el-form-item>
           <el-form-item label="调度结束日期">
-              <el-date-picker type="date" placeholder="选择日期" v-model="form.loseDate" style="width: 50%;" @change="timeHandler('loseDate')"></el-date-picker>
+              <el-date-picker type="date" placeholder="选择日期" v-model="form.endDate" style="width: 50%;" @change="timeHandler('endDate')"></el-date-picker>
           </el-form-item>
           <el-form-item>
             <!--<el-button type="success" >保存</el-button>-->
@@ -142,20 +142,20 @@
             page: 1,
             limit: 20,
             jobName: undefined,
-            author: undefined,
+            operator: undefined,
             sort: '+id',
             status: '',
-            searchStr: ''
+            keyword: ''
           },
           temp: {
             id: undefined,
-            groupName: '',
-            author: '',
-            createDate: '',
-            db: 'SSA',            
-            loseDate: '',
+            name: '',
+            operator: '',
+            createTime: '',
+            dataLevel: 'SSA',            
+            endDate: '',
             updateTime: '',
-            groupDesc: '',
+            descripe: '',
             status: 'Waiting'
           },
           importanceOptions: [1, 2, 3],
@@ -170,12 +170,12 @@
           tableKey: 0,
           form: {
             id: undefined,
-            groupName: '',
-            author: '',
-            db: 'SSA',
-            createDate: '',
-            loseDate: '',
-            groupDesc: '',            
+            name: '',
+            operator: '',
+            dataLevel: 'SSA',
+            createTime: '',
+            endDate: '',
+            descripe: '',            
             updateTime: '',     
             status: 'Waiting'                   
           },
@@ -207,8 +207,8 @@
         getList() {
           this.listLoading = true;
           fetchList(this.listQuery).then(response => {
-            this.list = response.items;
-            this.total = response.total;
+            this.list = response.data.rows;
+            this.total = response.data.pageCount;
             this.listLoading = false;
           })
         },
@@ -216,7 +216,7 @@
           this.getList();
         },
         clearFilter() {
-          this.listQuery.searchStr = ''
+          this.listQuery.keyword = ''
           this.getList();
         },
         handleSizeChange(val) {
