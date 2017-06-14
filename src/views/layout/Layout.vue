@@ -30,8 +30,8 @@
       beforeRouteEnter: (to, from, next) => {
         const roles = store.getters.roles;
         if (roles.length !== 0) {
-          next();
-          return
+        //   next();
+        //   return
         }
         store.dispatch('GetInfo').then(() => {
           permission.init({
