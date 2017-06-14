@@ -7,6 +7,7 @@
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
+    "debug": "node --nolazy --debug-brk=5858 build/dev-server.js",
     "build": "cross-env NODE_ENV=production node build/build.js",
     "build:test": "cross-env NODE_ENV=test node build/build.js",
     "build:ba": "cross-env NODE_ENV=test npm_config_preview=true  npm_config_report=true node build/build.js",
