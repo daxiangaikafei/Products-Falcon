@@ -17,7 +17,7 @@ import 'vue-multiselect/dist/vue-multiselect.min.css';
 import vueWaves from './directive/waves';
 import vueSticky from './directive/sticky';
 import errLog from 'store/errLog';
-import './mock/index.js';  // 重要：使用api请求时请将此行注释!!
+// import './mock/index.js';  // 重要：使用api请求时请将此行注释!!
 // import './styles/mixin.scss';
 import permission from 'store/permission';
 
@@ -49,14 +49,14 @@ router.beforeEach((to, from, next) => {
       next({ path: '/' });
     } else {
       if (to.meta && to.meta.role) { // 判断即将进入的页面是否需要权限
-        if (store.getters.uid) { // 判断当前用户是否已拉去玩info信息
+        if (store.getters.uid) { // 判断当前用户是否已获取info信息
           if (hasPermission(store.getters.roles, to.meta.role)) { // 判断权限
             next(); // 有权限
           } else {
             next('/401'); // 无权限
           }
-        } else { // 未拉去info信息
-          store.dispatch('GetInfo').then(() => { // 拉取info
+        } else { // 未获取info信息
+          store.dispatch('GetInfo').then(() => { // 获取info
             permission.init({ // 初始化权限
               roles: store.getters.roles,
               router: router.options.routes
