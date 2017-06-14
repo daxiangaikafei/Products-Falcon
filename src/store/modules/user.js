@@ -7,13 +7,13 @@ const user = {
     status: '',
     email: '',
     code: '',
-    uid: undefined,
+    uid: Cookies.get('uid') || undefined,
     auth_type: '',
     token: Cookies.get('X-Ivanka-Token'),
-    name: '',
+    name: Cookies.get('name') || '',
     avatar: '',
-    introduction: '',
-    roles: [],
+    introduction: Cookies.get('introduction') || '',
+    roles: Array(Cookies.get('roles')),
     setting: {
       articlePlatform: []
     }
@@ -62,15 +62,27 @@ const user = {
   },
 
   actions: {
-    // 邮箱登录
+    // 登录
     LoginByEmail({ commit }, userInfo) {
       const email = userInfo.email.trim();
       return new Promise((resolve, reject) => {
         loginByEmail(email, userInfo.password).then(response => {
-          const data = response.data;
-          Cookies.set('X-Ivanka-Token', response.data.token);
-          commit('SET_TOKEN', data.token);
-          commit('SET_EMAIL', email);
+          if (response.success){
+            const data = response.data;
+            Cookies.set('X-Ivanka-Token', 'admin');
+            Cookies.set('uid',data.userId)
+            Cookies.set('name',data.userName)
+            Cookies.set('introduction',data.nickName)
+            Cookies.set('roles','admin')
+            commit('SET_TOKEN', 'admin');
+            commit('SET_EMAIL', email);
+            commit('SET_ROLES', ['admin']);
+            commit('SET_NAME', data.userName);
+            commit('SET_AVATAR', data.avatar);
+            commit('SET_UID', data.userId);
+            commit('SET_INTRODUCTION', data.nickName);
+            
+          }
           resolve();
         }).catch(error => {
           reject(error);
@@ -82,33 +94,41 @@ const user = {
      // 获取用户信息
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
-        getInfo(state.token).then(response => {
-          const data = response.data;
-          commit('SET_ROLES', data.role);
-          commit('SET_NAME', data.name);
+        // getInfo(state.token).then(response => {
+          // const data = response.data;
+          const data = {
+            userId: Cookies.get('uid'),
+            userName: Cookies.get('name'),
+            nickName: Cookies.get('introduction'),
+            role: Cookies.get('roles')
+          }
+          commit('SET_ROLES', data.role || ['admin']);
+          commit('SET_EMAIL', data.email);
+          commit('SET_ROLES', Array(data.role));
+          commit('SET_NAME', data.userName);
           commit('SET_AVATAR', data.avatar);
-          commit('SET_UID', data.uid);
-          commit('SET_INTRODUCTION', data.introduction);
-          resolve(response);
-        }).catch(error => {
-          reject(error);
-        });
+          commit('SET_UID', data.userId);
+          commit('SET_INTRODUCTION', data.nickName);
+          resolve({data});
+        // }).catch(error => {
+        //   reject(error);
+        // });
       });
     },
 
     // 第三方验证登录
-    LoginByThirdparty({ commit, state }, code) {
-      return new Promise((resolve, reject) => {
-        commit('SET_CODE', code);
-        loginByThirdparty(state.status, state.email, state.code, state.auth_type).then(response => {
-          commit('SET_TOKEN', response.data.token);
-          Cookies.set('X-Ivanka-Token', response.data.token);
-          resolve();
-        }).catch(error => {
-          reject(error);
-        });
-      });
-    },
+    // LoginByThirdparty({ commit, state }, code) {
+    //   return new Promise((resolve, reject) => {
+    //     commit('SET_CODE', code);
+    //     loginByThirdparty(state.status, state.email, state.code, state.auth_type).then(response => {
+    //       commit('SET_TOKEN', response.data.token);
+    //       Cookies.set('X-Ivanka-Token', response.data.token);
+    //       resolve();
+    //     }).catch(error => {
+    //       reject(error);
+    //     });
+    //   });
+    // },
 
 
     // 登出
