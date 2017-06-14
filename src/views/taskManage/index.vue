@@ -56,7 +56,7 @@
 
       <el-table-column width="200px" align="center" label="更新时间" prop="updateTime" sortable>
         <template scope="scope">
-          <span>{{scope.row.updateTime | parseTime('{y}-{m}-{d} {hh}:{mm}:{ss}')}}</span>
+          <span>{{scope.row.updateTime | parseTime}}</span>
         </template>
       </el-table-column>
 
@@ -91,44 +91,6 @@
         :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
-
-    <el-dialog :title="textMap[dialogStatus]" v-model="dialogFormVisible">
-      <el-form class="small-space" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-
-        <el-form-item label="状态">
-          <el-select class="filter-item" v-model="temp.status" placeholder="请选择">
-            <el-option v-for="item in  statusOptions" :key="item" :label="item" :value="item">
-            </el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="时间">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="选择日期时间">
-          </el-date-picker>
-        </el-form-item>
-
-        <el-form-item label="Job_name">
-          <el-input v-model="temp.title"></el-input>
-        </el-form-item>
-
-        <el-form-item label="重要性">
-          <el-rate style="margin-top:8px;" v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']"></el-rate>
-        </el-form-item>
-
-        <el-form-item label="点评">
-          <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入内容" v-model="temp.remark">
-          </el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="success" >保存</el-button>
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="create">确 定</el-button>
-        <el-button v-else type="primary" @click="update">确 定</el-button>
-      </div>
-    </el-dialog>
-
-
 
     <el-dialog :title="textMap[dialogStatus]" v-model="editorDialogVisable">
       <div class="form-container">
@@ -188,8 +150,8 @@
               <el-date-picker type="date" placeholder="选择日期" v-model="form.startDate" style="width: 50%;" @change="timeHandler('startDate')"></el-date-picker>
           </el-form-item>
           <el-form-item>
-            <!--<el-button type="success" >保存</el-button>-->
-            <el-button type="primary" @click="update">提交</el-button>
+            <el-button type="success" @click="update">保存</el-button>
+            <el-button type="primary" @click="commit">提交</el-button>
             <el-button type="warning" @click="reset">重置</el-button>
             <el-button @click="editorDialogVisable = false">取消</el-button>
           </el-form-item>
@@ -378,7 +340,6 @@
           this.dialogStatus = 'update';
           this.editorDialogVisable = true;
         },
-
         update() {
           this.form.updateTime = +new Date()
           for (let v of this.list) {
@@ -392,20 +353,39 @@
             if (response.success) {
               this.$notify({
                 title: '成功',
-                message: '更新成功',
+                message: '保存成功',
                 type: 'success',
                 duration: 2000
               });
             } else {
               this.$notify({
                 title: '失败',
-                message: '更新失败',
+                message: '保存失败',
                 type: 'error',
                 duration: 2000
               });
             }
           })
-          
+        },
+        commit() {
+          this.editorDialogVisable = false;
+          saveOrUpdate(this.form).then(response => {
+            if (response.success) {
+              this.$notify({
+                title: '成功',
+                message: '提交成功',
+                type: 'success',
+                duration: 2000
+              });
+            } else {
+              this.$notify({
+                title: '失败',
+                message: '提交失败',
+                type: 'error',
+                duration: 2000
+              });
+            }
+          })
         },
         reset() {
           objectMerge(this.form, this.temp)          
