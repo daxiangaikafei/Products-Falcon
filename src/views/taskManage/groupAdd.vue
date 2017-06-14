@@ -27,9 +27,9 @@
           <el-date-picker type="date" placeholder="选择日期" v-model="form.loseDate" style="width: 50%;" @change="timeHandler('loseDate')"></el-date-picker>
       </el-form-item>
       <el-form-item>
-        <!--<el-button type="success" >保存</el-button>-->
+        <el-button type="success" @click="onSave">保存</el-button>
         <el-button type="primary" @click="onSubmit">提交</el-button>
-        <el-button type="warning" native-type="reset">重置</el-button>
+        <el-button type="warning" native-type="reset" @click="reset">重置</el-button>
         <el-button @click="editorDialogVisable = false">取消</el-button>
       </el-form-item>
     </el-form>
@@ -37,6 +37,7 @@
 </template>
 
 <script>
+  import { saveOrUpdate } from 'api/group';
   import { timeToStamp } from 'utils'
 
   export default {
@@ -45,7 +46,7 @@
         form: {
           id: undefined,
           groupName: '',
-          db: 'SSA',
+          db: '',
           createDate: '',
           loseDate: '',
           groupDesc: '',
@@ -59,7 +60,49 @@
     },
     methods: {
       onSubmit() {
-        console.log('submit!');
+        saveOrUpdate(this.form).then(response => {
+          if (response.success) {
+              this.$notify({
+                title: '成功',
+                message: '保存成功',
+                type: 'success',
+                duration: 2000
+              })
+              this.$refs.form.$el.reset()
+              this.reset()
+            } else {
+              this.$notify({
+                title: '失败',
+                message: '保存失败',
+                type: 'error',
+                duration: 2000
+              });
+            }
+        })
+      },
+      onSave() {
+        saveOrUpdate(this.form).then(response => {
+          if (response.success) {
+              this.$notify({
+                title: '成功',
+                message: '保存成功',
+                type: 'success',
+                duration: 2000
+              })
+              this.$refs.form.$el.reset()
+              this.reset()
+            } else {
+              this.$notify({
+                title: '失败',
+                message: '保存失败',
+                type: 'error',
+                duration: 2000
+              });
+            }
+        })
+      },
+      reset() {
+        
       },
       timeHandler(key) {
         timeToStamp(key, this.form)

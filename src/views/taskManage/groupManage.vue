@@ -82,7 +82,7 @@
 
     <div v-show="!listLoading" class="pagination-container">
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]"
-        :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+        :page-size="listQuery.rows" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
@@ -115,7 +115,7 @@
               <el-date-picker type="date" placeholder="选择日期" v-model="form.endDate" style="width: 50%;" @change="timeHandler('endDate')"></el-date-picker>
           </el-form-item>
           <el-form-item>
-            <!--<el-button type="success" >保存</el-button>-->
+            <el-button type="success" @click="save" >保存</el-button>
             <el-button type="primary" @click="update">提交</el-button>
             <el-button type="warning" @click="reset">重置</el-button>
             <el-button @click="editorDialogVisable = false">取消</el-button>
@@ -140,7 +140,7 @@
           listLoading: true,
           listQuery: {
             page: 1,
-            limit: 20,
+            rows: 20,
             jobName: undefined,
             operator: undefined,
             sort: '+id',
@@ -220,7 +220,7 @@
           this.getList();
         },
         handleSizeChange(val) {
-          this.listQuery.limit = val;
+          this.listQuery.rows = val;
           this.getList();
         },
         handleCurrentChange(val) {
@@ -249,10 +249,24 @@
           this.dialogStatus = 'update';
           this.editorDialogVisable = true;
         },
-
+        save() {
+          this.form.updateTime = +new Date()
+          for (let v of this.list) {
+            if (v.id === this.form.id) {
+              objectMerge(v, this.form)
+              break
+            }
+          }
+          this.editorDialogVisable = false;
+          this.$notify({
+            title: '成功',
+            message: '更新成功',
+            type: 'success',
+            duration: 2000
+          });
+        },
         update() {
           this.form.updateTime = +new Date()
-
           for (let v of this.list) {
             if (v.id === this.form.id) {
               objectMerge(v, this.form)
