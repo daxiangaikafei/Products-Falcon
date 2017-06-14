@@ -122,28 +122,28 @@ export default new Router({
     //   noDropdown: true,
     //   children: [{ path: 'index', component: Permission, name: '权限测试', meta: { role: ['admin'] } }]
     // },
-    {
-      path: '/charts',
-      component: Layout,
-      redirect: '/charts/line',
-      name: '图表',
-      icon: 'chart-bars',
-      children: [
-          { path: 'line', component: LineMarker, name: '折线图' },
-          { path: 'mixchart', component: MixChart, name: '混合图表' }
-      ]
-    },
-    {
-      path: '/errorpage',
-      component: Layout,
-      redirect: 'noredirect',
-      name: '错误页面',
-      icon: 'warning',
-      children: [
-          { path: '401', component: Err401, name: '401' },
-          { path: '404', component: Err404, name: '404' }
-      ]
-    },
+    // {
+    //   path: '/charts',
+    //   component: Layout,
+    //   redirect: '/charts/line',
+    //   name: '图表',
+    //   icon: 'chart-bars',
+    //   children: [
+    //       { path: 'line', component: LineMarker, name: '折线图' },
+    //       { path: 'mixchart', component: MixChart, name: '混合图表' }
+    //   ]
+    // },
+    // {
+    //   path: '/errorpage',
+    //   component: Layout,
+    //   redirect: 'noredirect',
+    //   name: '错误页面',
+    //   icon: 'warning',
+    //   children: [
+    //       { path: '401', component: Err401, name: '401' },
+    //       { path: '404', component: Err404, name: '404' }
+    //   ]
+    // },
     {
       path: '/icon',
       component: Layout,
