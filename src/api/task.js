@@ -2,7 +2,7 @@ import { fetch } from 'utils/fetch';
 
 export function fetchList(query) {
   return fetch({
-    url: '/falcon/jobproject/queryProjectList.html',
+    url: '/falcon/job/queryJobList.html',
     method: 'post',
     data: query
   })
