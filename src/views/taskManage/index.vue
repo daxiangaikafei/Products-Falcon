@@ -1,9 +1,9 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="Job_name、提交人" v-model="listQuery.searchStr">
+      <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="Job_name、提交人" v-model="listQuery.keyword">
       </el-input> 
-      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.author"> 
+      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.operator"> 
       </el-input>-->
       <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" v-waves icon="circle-close" @click="clearFilter">清除</el-button>
@@ -17,10 +17,10 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="200px" label="Job_name" sortable prop="jobName">
+      <el-table-column min-width="200px" label="Job_name" sortable prop="name">
         <template scope="scope">
           <!--<span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.title}}</span>-->
-          <a href='#' >{{scope.row.jobName}}</a>
+          <a href='#' >{{scope.row.name}}</a>
         </template>
       </el-table-column>
 
@@ -36,9 +36,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="130px" label="所属组名" sortable prop="groupName">
+      <el-table-column min-width="130px" label="所属组名" sortable prop="ownerProjectName">
         <template scope="scope">
-          <span>{{scope.row.groupName}}</span>          
+          <span>{{scope.row.ownerProjectName}}</span>          
         </template>
       </el-table-column>
 
@@ -69,9 +69,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="110px" align="center" label="提交人" sortable prop="author">
+      <el-table-column width="110px" align="center" label="提交人" sortable prop="operator">
         <template scope="scope">
-          <span>{{scope.row.author}}</span>
+          <span>{{scope.row.operator}}</span>
         </template>
       </el-table-column>
 
@@ -121,6 +121,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
+        <el-button type="success" >保存</el-button>
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button v-if="dialogStatus=='create'" type="primary" @click="create">确 定</el-button>
         <el-button v-else type="primary" @click="update">确 定</el-button>
@@ -133,13 +134,13 @@
       <div class="form-container">
           <el-form ref="form" :model="form" label-width="110px" class="form">
           <el-form-item label="任务名称">
-            <el-input v-model="form.jobName"></el-input>
+            <el-input v-model="form.name"></el-input>
           </el-form-item>
           <el-form-item label="任务脚本名">
             <el-input v-model="form.scriptName"></el-input>
           </el-form-item>
           <el-form-item label="操作人">
-            <el-input v-model="form.author"></el-input>
+            <el-input v-model="form.operator"></el-input>
           </el-form-item>
           <el-form-item label="数据库仓库层级">
             <el-select v-model="form.db" placeholder="请选择">
@@ -168,7 +169,7 @@
               </el-select>
           </el-form-item>
           <el-form-item label="所属组">
-            <el-input v-model="form.groupName"></el-input>
+            <el-input v-model="form.ownerProjectName"></el-input>
           </el-form-item>
           <el-form-item label="运行周期">
             <el-select v-model="form.cycle" placeholder="请选择">
@@ -200,7 +201,7 @@
 </template>
 
 <script>
-    import { fetchList } from 'api/task';
+    import { fetchList, runOrStop, deleteJob, saveOrUpdate } from 'api/task';
     import { parseTime, objectMerge, timeToStamp } from 'utils';
 
     export default {
@@ -212,19 +213,19 @@
           listLoading: true,
           listQuery: {
             page: 1,
-            limit: 20,
-            jobName: undefined,
-            author: undefined,
+            rows: 20,
+            name: undefined,
+            operator: undefined,
             sort: '+id',
             status: '',
-            searchStr: ''
+            keyword: ''
           },
           temp: {
             id: undefined,
-            jobName: '',
+            name: '',
             scriptName: '',
             groupId: 0,
-            groupName: '',
+            ownerProjectName: '',
             db: 'SSA',
             cycle: 'daily',
             depend: [],
@@ -233,7 +234,7 @@
             endDate: '',
             updateTime: '',   
             status: 'Waiting',
-            author: '' 
+            operator: '' 
           },
           importanceOptions: [1, 2, 3],
           sortOptions: [{ label: '按ID升序', key: '+id' }, { label: '按ID降序', key: '-id' }],
@@ -251,10 +252,10 @@
           tableKey: 0,
           form: {
             id: undefined,
-            jobName: '',
+            name: '',
             scriptName: '',
             groupId: 0,
-            groupName: '',
+            ownerProjectName: '',
             db: 'SSA',
             cycle: 'daily',
             depend: [],
@@ -263,7 +264,7 @@
             endDate: '',
             updateTime: '',   
             status: 'Waiting',
-            author: ''                     
+            operator: ''                     
           },
           loading: false,
           options: [{
@@ -309,8 +310,8 @@
         getList() {
           this.listLoading = true;
           fetchList(this.listQuery).then(response => {
-            this.list = response.items;
-            this.total = response.total;
+            this.list = response.data.rows;
+            this.total = response.data.total;
             this.listLoading = false;
           })
         },
@@ -332,7 +333,7 @@
           this.getList();
         },
         clearFilter() {
-          this.listQuery.searchStr = ''
+          this.listQuery.keyword = ''
           this.getList();
         },
         handleSizeChange(val) {
@@ -353,11 +354,23 @@
           this.listQuery.end = parseInt((+time[1] + 3600 * 1000 * 24) / 1000);
         },
         handleModifyStatus(row, status) {
-          this.$message({
-            message: '操作成功',
-            type: 'success'
-          });
-          row.status = status;
+          this.loading = true;
+          runOrStop(2, row.id+'').then(response => {
+            this.loading = false;
+            if (response.success) {
+              this.$message({
+                message: '操作成功',
+                type: 'success'
+              })
+              row.status = status;
+            } else {
+              this.$message({
+                message: '操作失败',
+                type: 'error'
+              })
+            }
+          })
+          
         },
         handleUpdate(row) {
           objectMerge(this.form, row)
@@ -375,12 +388,24 @@
             }
           }
           this.editorDialogVisable = false;
-          this.$notify({
-            title: '成功',
-            message: '更新成功',
-            type: 'success',
-            duration: 2000
-          });
+          saveOrUpdate(this.form).then(response => {
+            if (response.success) {
+              this.$notify({
+                title: '成功',
+                message: '更新成功',
+                type: 'success',
+                duration: 2000
+              });
+            } else {
+              this.$notify({
+                title: '失败',
+                message: '更新失败',
+                type: 'error',
+                duration: 2000
+              });
+            }
+          })
+          
         },
         reset() {
           objectMerge(this.form, this.temp)          
