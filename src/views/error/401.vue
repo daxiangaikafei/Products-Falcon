@@ -10,7 +10,7 @@
         </ul>
       </el-col>
       <el-col :span="12">
-        <Icon icon-name="construction" size="300" color="#1482f0"/>
+        <Icon icon-name="construction" :size="300" color="#1482f0"/>
       </el-col>
     </el-row>
   </div>
