@@ -2,7 +2,7 @@
   <div class="home-container">
     <ul class="icons">
       <li><Icon :icon-name="'sync'" :size="32" class="loading" /><span class="title">sync</span></li>
-      <li><Icon :icon-name="'home'" :color="'#427cf3'" :size="32"  /><span class="title">home</span></li>
+      <li><Icon icon-name="home" color="#427cf3" :size="32"  /><span class="title">home</span></li>
       <li v-for="item in icons">
         <Icon :icon-name="item.replace(/icon-/ig, '')" :size="32"/>
         <span class="title">{{item.replace(/icon-/ig, '')}}</span>
