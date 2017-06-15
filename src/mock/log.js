@@ -7,7 +7,7 @@ const Log = Mock.mock({
 
 export default {
   getDetail: config => {
-    const { jobName } = config.params;
+    const { name } = JSON.parse(config.data);
     
     return new Promise(resolve => {
       setTimeout(() => {

@@ -37,7 +37,7 @@ for (let i = 0; i < subCount; i++) {
     exeDuration: +Mock.Random.time('T'),
     'durations|7': ['@natural(9,99)'],
     'dates|7': ["@date('yyyy.MM.dd')"],
-    name: /P_SEITL_TASK_[A-Z]{3}_[A-Z]{1}/,
+    name: 'P_SEITL_TASK_KGN_G',
     'author|1': ['ROOT','ADMIN','DEVELOP'],
     'status|1': ['Success', 'Running', 'Falled', 'Waiting'],
     pageviews: '@integer(300, 5000)'
