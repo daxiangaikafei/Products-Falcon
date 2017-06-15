@@ -1,5 +1,6 @@
 <template>
   <div class="app-container ">
+    <TaskMenu />
     <svg id="treeChart" version="1.1" @click="svgClickHandler" xmlns="http://www.w3.org/2000/svg">
       <defs>
       <marker id="arrow"
@@ -40,9 +41,13 @@
 <script>
     import { fetchSubTaskList } from 'api/task';
     import { parseTime, objectMerge } from 'utils';
+    import TaskMenu from './taskMenu'
     //<line x1="320" y1="30" x2="110" y2="100" style="stroke:rgb(0,0,0);stroke-width:2"/>
     export default {
       name: 'treeView',
+      components: {
+        TaskMenu
+      },
       data() {
         return {
           count: 0,
