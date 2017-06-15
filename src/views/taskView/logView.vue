@@ -1,7 +1,7 @@
 <template>
   <div class="log-container" :style="{height:cHeight+'px'}">
-
-    <div class="title"><el-button size="small" icon="arrow-left" @click="back">返回</el-button> 日志</div>
+    <TaskMenu></TaskMenu>
+    <div class="title">当前执行日志：P_SEITL_TASK_KGN_G</div>
      <div class="log">
        {{log.content}}
     </div>
@@ -10,8 +10,12 @@
 </template>
 <script>
   import { fetchLog } from 'api/log';
+  import TaskMenu from './taskMenu'
 
   export default {
+    components: {
+      TaskMenu
+    },
     data() {
       return {
         listQuery: {
