@@ -29,9 +29,11 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="140px" label="Job_name" sortable prop="jobName" sortable>
+      <el-table-column min-width="140px" label="Job_name" sortable prop="name" sortable>
         <template scope="scope">
-          <a href='#' >{{scope.row.jobName}}</a>
+          <router-link :to="{name:'Tree',params: {taskId: scope.row.id}}">
+            <el-button type="text" >{{scope.row.name}}</el-button>
+          </router-link>
         </template>
       </el-table-column>
 
@@ -96,7 +98,7 @@
           listQuery: {
             page: 1,
             limit: 20,
-            jobName: undefined,
+            name: undefined,
             author: undefined,
             sort: '+id',
             status: '',
@@ -104,7 +106,7 @@
           },
           temp: {
             id: undefined,
-            jobName: '',
+            name: '',
             author: '',
             startTime: '',
             endTime: '',
@@ -120,7 +122,7 @@
           tableKey: 0,
           form: {
             id: undefined,
-            jobName: '',
+            name: '',
             author: '',
             startTime: '',
             endTime: '',
