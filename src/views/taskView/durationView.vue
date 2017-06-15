@@ -1,5 +1,6 @@
 <template>
   <div class="app-container calendar-list-container">
+    <TaskMenu />
       <div class='chart-container'>
         <durationLine height='100%' width='100%' :options="chartOptions" />
       </div>
@@ -8,7 +9,6 @@
       :key='tableKey' 
       :data="list" 
       :default-sort="{prop: 'id', order: 'aescending'}" 
-      @row-click="handleRowClick" 
       @selection-change="handleSelectionChange"
       @sort-change="handleSortChange"
       v-loading.body="listLoading" 
@@ -16,13 +16,13 @@
       style="width: 100%">
       <el-table-column align="center" label="ID" width="130" sortable prop="id">
         <template scope="scope">
-          <span>{{scope.row.id}}</span>
+          <span>{{id}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column min-width="140px" label="Job_name" sortable prop="jobName" sortable>
+      <el-table-column min-width="140px" label="Job_name" sortable prop="name" sortable>
         <template scope="scope">
-          <span >{{scope.row.jobName}}</span>
+          <span >{{scope.row.name}}</span>
         </template>
       </el-table-column>
 
@@ -81,12 +81,14 @@
     import { fetchSubTaskList } from 'api/task';
     import { parseTime, objectMerge } from 'utils';
     import durationLine from './durationLine';
+    import TaskMenu from './taskMenu'
 
     export default {
       name: 'durationView',
-      components: { durationLine },      
+      components: { durationLine, TaskMenu },      
       data() {
         return {
+          id: undefined,
           list: [],
           total: null,
           listLoading: true,
@@ -96,14 +98,14 @@
           listQuery: {
             page: 1,
             limit: 10,
-            jobName: undefined,
+            name: undefined,
             author: undefined,
             sort: '+id',
             status: ''
           },
           temp: {
             id: undefined,
-            jobName: '',
+            name: '',
             author: '',
             startTime: '',
             endTime: '',
@@ -123,7 +125,7 @@
           tableKey: 0,
           form: {
             id: undefined,
-            jobName: '',
+            name: '',
             author: '',
             startTime: '',
             endTime: '',
@@ -236,7 +238,7 @@
       
       created() {
         this.getList();
-        
+        this.id = this.$route.params.taskId
       },
       updated() {
         if(this.list && this.list[0]) {
@@ -300,7 +302,7 @@
         handleRowClick(row) {
           this.chartOptions.xAxis[0].data = row.dates
           this.chartOptions.series[0].data = row.durations
-          this.chartOptions.title.text = '当前查看任务： '+row.jobName
+          this.chartOptions.title.text = '当前查看任务： '+row.name
         },
         timeFilter(time) {
           if (!time[0]) {
