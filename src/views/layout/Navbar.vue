@@ -13,7 +13,8 @@
                             </div>
                             <span class="line"></span>
                             <div class="avatar-wrapper">
-                                <img class="user-avatar" :src="avatar">
+                                <img v-if="avatar" class="user-avatar" :src="avatar">
+                                <Icon v-if="!avatar" icon-name="user" color="#fbfdff" :size="16"  />
                                 用户账号：{{name}} [{{introduction}}]
                             </div>
                             <span class="line"></span>                            
@@ -110,6 +111,9 @@
                     width: 30px;
                     height: 30px;
                     border-radius: 50%;
+                    margin-right: 5px;
+                }
+                svg {
                     margin-right: 5px;
                 }
                 .el-icon-caret-bottom {
