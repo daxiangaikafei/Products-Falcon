@@ -8,7 +8,7 @@
       <el-input v-model="form.scriptName"></el-input>
     </el-form-item>
     <el-form-item label="操作人">
-      <el-input v-model="form.author"></el-input>
+      <el-input v-model="form.userName  "></el-input>
     </el-form-item>
     <el-form-item label="数据库仓库层级">
       <el-select v-model="form.db" placeholder="请选择">
@@ -20,18 +20,18 @@
     </el-form-item>
     <el-form-item label="依赖任务">
       <!--<el-col :span="21">-->
-      <!--<el-input v-model="form.depend"></el-input>-->
+      <!--<el-input v-model="form.referJobIds"></el-input>-->
       <el-select
-          v-model="form.depend"
+          v-model="form.referJobIds"
           multiple
           filterable
           remote
           placeholder="查询并选择依赖"
-          :remote-method="getDepend"
+          :remote-method="getReferJobIds"
           :loading="loading"
           style="width:100%">
           <el-option
-            v-for="item in options"
+            v-for="item in referJobIdsOptions"
             :key="item.value"
             :label="item.label"
             :value="item.value">
@@ -49,12 +49,27 @@
         </el-col>-->
     </el-form-item>
     <el-form-item label="所属组">
-      <el-input v-model="form.groupName"></el-input>
+      <el-select
+          v-model="form.ownerProjects"
+          :multiple="false"
+          clearable
+          filterable
+          remote
+          placeholder="查询并选择任务组"
+          :remote-method="getOwnerProjects"
+          :loading="loading"
+          style="width:100%">
+          <el-option
+            v-for="item in ownerProjectsOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
     </el-form-item>
     <el-form-item label="运行周期">
       <el-select v-model="form.cycle" placeholder="请选择">
         <el-option label="每日" value="daily"></el-option>
-        <el-option label="单次" value="once"></el-option>
         <el-option label="每周" value="weekly"></el-option>
         <el-option label="每月" value="monthly"></el-option>
         <el-option label="每年" value="yearly"></el-option>
@@ -78,7 +93,8 @@
 </template>
 
 <script>
-  import { saveOrUpdate } from 'api/task';
+  import { fetchList, saveOrUpdate } from 'api/task';
+  import { fetchList as fetchGroupList } from 'api/group';
   import { timeToStamp } from 'utils'
 
   export default {
@@ -89,41 +105,31 @@
           name: '',
           scriptName: '',
           groupId: 0,
-          groupName: '',
+          ownerProjects: '',
           db: '',
           cycle: '',
-          depend: [],
+          referJobIds: [],
           exeTime: '',
           startDate: '',
           endDate: '',
           updateTime: '',   
-          status: 'Waiting',
-          author: ''                     
+          status: 0,
+          userName  : ''                     
         },
         loading: false,
-        options: [{
-          value: 'HTML',
-          label: 'HTML'
-        }, {
-          value: 'CSS',
-          label: 'CSS'
-        }, {
-          value: 'JavaScript',
-          label: 'JavaScript'
-        }],
-        states: ["HTML","CSS","JavaScript","PHP", "Java", "Ruby",
-        "Python", "NodeJS", "C","C++", "C#", "Perl","Swift", "Go", "R", "Object-C",
-        "Visual Basic", "SQL", "Scala", "Lua","Dart", "Lisp","Bash"]
-
+        referJobIdsOptions: [],
+        ownerProjectsOptions: [],
+        states: []
       }
     },
     mounted() {
-      this.form.dependList = this.states.map(item => {
-        return { value: item, label: item };
-      });
+      // this.form.referJobIdsList = this.states.map(item => {
+      //   return { value: item, label: item };
+      // });
     },
     methods: {
       onSubmit() {
+        this.form.referJobIds = this.form.referJobIds.join()
         saveOrUpdate(this.form).then(response => {
           if (response.success) {
               this.$notify({
@@ -145,6 +151,7 @@
         })
       },
       onSave() {
+        this.form.referJobIds = this.form.referJobIds.join()        
         saveOrUpdate(this.form).then(response => {
           if (response.success) {
               this.$notify({
@@ -165,22 +172,48 @@
             }
         })
       },
-      getDepend(query) {
+      getReferJobIds(query) {
         if (query !== '') {
           this.loading = true;
-          setTimeout(() => {
+          fetchList({keyword:query,page:1,rows:500}).then(response => {
             this.loading = false;
-            this.options = this.form.dependList.filter(item => {
-              return item.label.toLowerCase()
-                .indexOf(query.toLowerCase()) > -1;
-            });
-          }, 200);
+            if(response.success && response.data.rows) {
+              this.states = response.data.rows.map(item => {
+                return { value: item.id, label: item.name };
+              })
+              console.log('states', this.states)
+              this.referJobIdsOptions = this.states.filter(item => {
+                return item.label.toLowerCase()
+                  .indexOf(query.toLowerCase()) > -1;
+              })
+            }
+          })
         } else {
-          this.options = [];
+          this.referJobIdsOptions = [];
+        }
+      },
+      getOwnerProjects(query) {
+        if (query !== '') {
+          this.loading = true;
+          fetchGroupList({keyword:query,page:1,rows:500}).then(response => {
+            this.loading = false;
+            if(response.success && response.data.rows) {
+              this.states = response.data.rows.map(item => {
+                return { value: item.id, label: item.name };
+              })
+              console.log('states', this.states)
+              this.ownerProjectsOptions = this.states.filter(item => {
+                return item.label.toLowerCase()
+                  .indexOf(query.toLowerCase()) > -1;
+              })
+            }
+          })
+        } else {
+          this.ownerProjectsOptions = [];
         }
       },
       reset() {
-        this.form.depend = []
+        this.form.referJobIds = []
       },
       timeHandler(key) {
         timeToStamp(key, this.form)
