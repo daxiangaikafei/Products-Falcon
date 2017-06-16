@@ -30,9 +30,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="120px" label="所属组ID" sortable prop="groupId">
+      <el-table-column min-width="120px" label="所属组ID" sortable prop="ownerProjectId">
         <template scope="scope">
-          <span>{{scope.row.groupId}}</span>          
+          <span>{{scope.row.ownerProjectId}}</span>          
         </template>
       </el-table-column>
 
@@ -175,16 +175,13 @@
           listQuery: {
             page: 1,
             rows: 20,
-            name: undefined,
-            userName: undefined,
-            status: '',
             keyword: ''
           },
           temp: {
             id: undefined,
             name: '',
             scriptName: '',
-            groupId: 0,
+            ownerProjectId: 0,
             ownerProjectName: '',
             db: 'SSA',
             cycle: 'daily',
@@ -214,7 +211,7 @@
             id: undefined,
             name: '',
             scriptName: '',
-            groupId: 0,
+            ownerProjectId: 0,
             ownerProjectName: '',
             db: 'SSA',
             cycle: 'daily',
@@ -306,7 +303,7 @@
           this.getList();
         },
         handleSizeChange(val) {
-          this.listQuery.limit = val;
+          this.listQuery.rows = val;
           this.getList();
         },
         handleCurrentChange(val) {
