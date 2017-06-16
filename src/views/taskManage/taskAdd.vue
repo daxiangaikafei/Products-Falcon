@@ -77,7 +77,7 @@
       </el-select>
     </el-form-item>
     <el-form-item label="运行时间点">
-        <el-time-picker type="fixed-time" placeholder="选择时间" v-model="form.exeTime" format="HH:mm" style="width: 50%;" @change="timeHandler('exeTime')"></el-time-picker>
+        <el-time-picker type="fixed-time" placeholder="选择时间" v-model="form.startTime" format="HH:mm" style="width: 50%;" @change="timeHandler('startTime')"></el-time-picker>
     </el-form-item>
     <el-form-item label="首次运行日期">
         <el-date-picker type="date" placeholder="选择日期" v-model="form.startDate" style="width: 50%;" @change="timeHandler('startDate')"></el-date-picker>
@@ -109,7 +109,7 @@
           db: '',
           cycle: '',
           referJobIds: [],
-          exeTime: '',
+          startTime: '',
           startDate: '',
           endDate: '',
           updateTime: '',   
@@ -181,7 +181,6 @@
               this.states = response.data.rows.map(item => {
                 return { value: item.id, label: item.name };
               })
-              console.log('states', this.states)
               this.referJobIdsOptions = this.states.filter(item => {
                 return item.label.toLowerCase()
                   .indexOf(query.toLowerCase()) > -1;
@@ -201,7 +200,6 @@
               this.states = response.data.rows.map(item => {
                 return { value: item.id, label: item.name };
               })
-              console.log('states', this.states)
               this.ownerProjectsOptions = this.states.filter(item => {
                 return item.label.toLowerCase()
                   .indexOf(query.toLowerCase()) > -1;
