@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="任务组名、提交人" v-model="listQuery.keyword">
       </el-input> 
-      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.operator"> 
+      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.userName"> 
       </el-input>-->
       <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" v-waves icon="circle-close" @click="clearFilter">清除</el-button>
@@ -37,7 +37,7 @@
 
       <el-table-column width="200px" align="center" label="更新时间" prop="updateTime" sortable>
         <template scope="scope">
-          <span>{{scope.row.updateTime | parseTime}}</span>
+          <span>{{scope.row.updateTime}}</span>
         </template>
       </el-table-column>
 
@@ -55,25 +55,25 @@
       </el-table-column>
 
       <el-table-column class-name="status-col" label="Status" width="110" sortable prop="status"
-        :filters="[{ text: 'Success', value: 'Success' }, { text: 'Falled', value: 'Falled' }, { text: 'Running', value: 'Running' }, { text: 'Waiting', value: 'Waiting' }]" 
+        :filters="[{ text: 'Success', value: 0 }, { text: 'Falled', value: 1 }, { text: 'Running', value: 2 }, { text: 'Waiting', value: 3 }]" 
         :filter-method="showStatusFilter"
         filter-placement="bottom-end">
         <template scope="scope">
-          <el-tag v-if="scope.row.status" :type="scope.row.status | statusFilter">{{scope.row.status}}</el-tag>
+          <el-tag :type="scope.row.status | statusFilter">{{scope.row.status | statusTextFilter }}</el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column width="110px" align="center" label="提交人" sortable prop="operator">
+      <el-table-column width="110px" align="center" label="提交人" sortable prop="userName">
         <template scope="scope">
-          <span>{{scope.row.operator}}</span>
+          <span>{{scope.row.userName}}</span>
         </template>
       </el-table-column>
 
       <el-table-column  align="center" label="操作" width="80">
         <template scope="scope">
-          <el-button v-if="scope.row.status=='Running'" size="small" type="danger" @click="handleModifyStatus(scope.row,'Falled')">停止
+          <el-button v-if="scope.row.status==2" size="small" type="danger" @click="handleModifyStatus(scope.row, 1)">停止
           </el-button>
-          <el-button v-if="scope.row.status!='Running'" size="small" type="primary" @click="handleUpdate(scope.row)">编辑
+          <el-button v-if="scope.row.status!=2" size="small" type="primary" @click="handleUpdate(scope.row)">编辑
           </el-button>
         </template>
       </el-table-column>
@@ -93,7 +93,7 @@
             <el-input v-model="form.name"></el-input>
           </el-form-item>
           <el-form-item label="操作人">
-            <el-input v-model="form.operator"></el-input>
+            <el-input v-model="form.userName"></el-input>
           </el-form-item>
           <el-form-item label="数据库仓库层级">
             <el-select v-model="form.dataLevel" placeholder="请选择">
@@ -141,16 +141,12 @@
           listQuery: {
             page: 1,
             rows: 20,
-            jobName: undefined,
-            operator: undefined,
-            sort: '+id',
-            status: '',
             keyword: ''
           },
           temp: {
             id: undefined,
             name: '',
-            operator: '',
+            userName: '',
             createTime: '',
             dataLevel: 'SSA',            
             endDate: '',
@@ -171,7 +167,7 @@
           form: {
             id: undefined,
             name: '',
-            operator: '',
+            userName: '',
             dataLevel: 'SSA',
             createTime: '',
             endDate: '',
@@ -190,12 +186,21 @@
       },
       filters: {
         statusFilter(status) {
-          const statusMap = {
-            Success: 'success',
-            Running: 'primary',
-            Falled: 'danger',
-            Waiting: 'warning'
-          };
+          const statusMap = [
+            'success',
+            'primary',
+            'danger',
+            'warning'
+          ];
+          return statusMap[status]
+        },
+        statusTextFilter(status) {
+          const statusMap = [
+            'Success',
+            'Falled',
+            'Running',
+            'Waiting'
+          ];
           return statusMap[status]
         },
         typeFilter(type) {
@@ -250,7 +255,7 @@
           this.editorDialogVisable = true;
         },
         save() {
-          this.form.updateTime = +new Date()
+          this.form.updateTime = parseTime(new Date())
           for (let v of this.list) {
             if (v.id === this.form.id) {
               objectMerge(v, this.form)
@@ -266,7 +271,7 @@
           });
         },
         update() {
-          this.form.updateTime = +new Date()
+          this.form.updateTime = parseTime(new Date())
           for (let v of this.list) {
             if (v.id === this.form.id) {
               objectMerge(v, this.form)
