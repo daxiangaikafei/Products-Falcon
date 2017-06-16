@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="Job_name、提交人" v-model="listQuery.keyword">
       </el-input> 
-      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.operator"> 
+      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.userName"> 
       </el-input>-->
       <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" v-waves icon="circle-close" @click="clearFilter">清除</el-button>
@@ -24,9 +24,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="130px" label="调度时间点" sortable prop="exeTime">
+      <el-table-column min-width="130px" label="调度时间点" sortable prop="startTime">
         <template scope="scope">
-          <span>{{scope.row.exeTime | parseTime('{h}:{i}')}}</span>
+          <span>{{scope.row.startTime}}</span>
         </template>
       </el-table-column>
 
@@ -44,13 +44,13 @@
 
       <el-table-column width="160px" align="center" label="调度开始日期" prop="startDate" sortable>
         <template scope="scope">
-          <span>{{scope.row.startDate | parseTime('{y}-{m}-{d}')}}</span>
+          <span>{{scope.row.startDate}}</span>
         </template>
       </el-table-column>
 
       <el-table-column width="160px" align="center" label="调度结束日期" prop="endDate" sortable>
         <template scope="scope">
-          <span>{{scope.row.endDate | parseTime('{y}-{m}-{d}')}}</span>
+          <span>{{scope.row.endDate}}</span>
         </template>
       </el-table-column>
 
@@ -61,25 +61,25 @@
       </el-table-column>
 
       <el-table-column class-name="status-col" label="Status" width="110" sortable prop="status"
-        :filters="[{ text: 'Success', value: 'Success' }, { text: 'Falled', value: 'Falled' }, { text: 'Running', value: 'Running' }, { text: 'Waiting', value: 'Waiting' }]" 
+        :filters="[{ text: 'Success', value: 0 }, { text: 'Falled', value: 1 }, { text: 'Running', value: 2 }, { text: 'Waiting', value: 3 }]" 
         :filter-method="showStatusFilter"
         filter-placement="bottom-end">
         <template scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">{{scope.row.status}}</el-tag>
+          <el-tag :type="scope.row.status | statusFilter">{{scope.row.status | statusTextFilter}}</el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column width="110px" align="center" label="提交人" sortable prop="operator">
+      <el-table-column width="110px" align="center" label="提交人" sortable prop="userName">
         <template scope="scope">
-          <span>{{scope.row.operator}}</span>
+          <span>{{scope.row.userName}}</span>
         </template>
       </el-table-column>
 
       <el-table-column  align="center" label="操作" width="80">
         <template scope="scope">
-          <el-button v-if="scope.row.status=='Running'" size="small" type="danger" @click="handleModifyStatus(scope.row,'Falled')">停止
+          <el-button v-if="scope.row.status==2" size="small" type="danger" @click="handleModifyStatus(scope.row,1)">停止
           </el-button>
-          <el-button v-if="scope.row.status!='Running'" size="small" type="primary" @click="handleUpdate(scope.row)">编辑
+          <el-button v-if="scope.row.status!=2" size="small" type="primary" @click="handleUpdate(scope.row)">编辑
           </el-button>
         </template>
       </el-table-column>
@@ -87,8 +87,8 @@
     </el-table>
 
     <div v-show="!listLoading" class="pagination-container">
-      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]"
-        :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30,50]"
+        :page-size="listQuery.rows" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
@@ -102,7 +102,7 @@
             <el-input v-model="form.scriptName"></el-input>
           </el-form-item>
           <el-form-item label="操作人">
-            <el-input v-model="form.operator"></el-input>
+            <el-input v-model="form.userName"></el-input>
           </el-form-item>
           <el-form-item label="数据库仓库层级">
             <el-select v-model="form.db" placeholder="请选择">
@@ -136,7 +136,6 @@
           <el-form-item label="运行周期">
             <el-select v-model="form.cycle" placeholder="请选择">
               <el-option label="每日" value="daily"></el-option>
-              <el-option label="单次" value="once"></el-option>
               <el-option label="每周" value="weekly"></el-option>
               <el-option label="每月" value="monthly"></el-option>
               <el-option label="每年" value="yearly"></el-option>
@@ -144,7 +143,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="运行时间点">
-              <el-time-picker type="fixed-time" placeholder="选择时间" v-model="form.exeTime" format="HH:mm" style="width: 50%;" @change="timeHandler('exeTime')"></el-time-picker>
+              <el-time-picker type="fixed-time" placeholder="选择时间" v-model="form.startTime" format="HH:mm" style="width: 50%;" @change="timeHandler('startTime')"></el-time-picker>
           </el-form-item>
           <el-form-item label="首次运行日期">
               <el-date-picker type="date" placeholder="选择日期" v-model="form.startDate" style="width: 50%;" @change="timeHandler('startDate')"></el-date-picker>
@@ -177,8 +176,7 @@
             page: 1,
             rows: 20,
             name: undefined,
-            operator: undefined,
-            sort: '+id',
+            userName: undefined,
             status: '',
             keyword: ''
           },
@@ -191,12 +189,12 @@
             db: 'SSA',
             cycle: 'daily',
             depend: [],
-            exeTime: '',
+            startTime: '',
             startDate: '',
             endDate: '',
             updateTime: '',   
             status: 'Waiting',
-            operator: '' 
+            userName: '' 
           },
           importanceOptions: [1, 2, 3],
           sortOptions: [{ label: '按ID升序', key: '+id' }, { label: '按ID降序', key: '-id' }],
@@ -221,12 +219,12 @@
             db: 'SSA',
             cycle: 'daily',
             depend: [],
-            exeTime: '',
+            startTime: '',
             startDate: '',
             endDate: '',
             updateTime: '',   
             status: 'Waiting',
-            operator: ''                     
+            userName: ''                     
           },
           loading: false,
           options: [{
@@ -255,12 +253,21 @@
       },
       filters: {
         statusFilter(status) {
-          const statusMap = {
-            Success: 'success',
-            Running: 'primary',
-            Falled: 'danger',
-            Waiting: 'warning'
-          };
+          const statusMap = [
+            'success',
+            'primary',
+            'danger',
+            'warning'
+          ];
+          return statusMap[status]
+        },
+        statusTextFilter(status) {
+          const statusMap = [
+            'Success',
+            'Falled',
+            'Running',
+            'Waiting'
+          ];
           return statusMap[status]
         },
         typeFilter(type) {
