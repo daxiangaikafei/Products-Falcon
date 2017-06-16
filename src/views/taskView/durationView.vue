@@ -59,13 +59,13 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="110px" align="center" label="日志">
+      <!--<el-table-column width="110px" align="center" label="日志">
         <template scope="scope">
           <router-link :to="{name:'Log',params: {taskId: scope.row.id}}">
             <el-button type="success" size="small">查看</el-button>
           </router-link>
         </template>
-      </el-table-column>
+      </el-table-column>-->
     </el-table>
 
     <div v-show="!listLoading" class="pagination-container">
