@@ -16,12 +16,22 @@ export function saveOrUpdate(form) {
   })
 }
 
-export function runOrStop(actionName, jobIds) {
+export function run(jobId) {
   return fetch({
-    url: '/falcon/job/jobaction.html',
+    url: '/falcon/job/run.html',
     method: 'post',
     data: {
-      actionName, jobIds
+      jobId
+    }
+  })
+}
+
+export function stop(jobId) {
+  return fetch({
+    url: '/falcon/job/stop.html',
+    method: 'post',
+    data: {
+      jobId
     }
   })
 }
@@ -36,6 +46,43 @@ export function deleteJob(jobId) {
   })
 }
 
+export function queryJobInfo(jobId) {
+  return fetch({
+    url: '/falcon/job/queryJobInfo.html',
+    method: 'post',
+    data: {
+      jobId
+    }
+  })
+}
+
+export function queryJobRefer(jobId) {
+  return fetch({
+    url: '/falcon/job/queryJobRefer.html',
+    method: 'post',
+    data: {
+      jobId
+    }
+  })
+}
+
+export function queryReferJob(jobId) {
+  return fetch({
+    url: '/falcon/job/queryReferJob.html',
+    method: 'post',
+    data: {
+      jobId
+    }
+  })
+}
+
+export function queryWfJobsList(query) {
+  return fetch({
+    url: '/task/job/queryWfJobsList.html',
+    method: 'post',
+    data: query
+  });
+}
 export function fetchSubTaskList(query) {
   return fetch({
     url: '/task/subList',
