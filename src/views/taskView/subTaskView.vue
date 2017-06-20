@@ -21,18 +21,18 @@
       </el-checkbox-group>-->
     </div>
 
-    <el-table  :key='tableKey' :data="list" :default-sort="{prop: 'id', order: 'aescending'}" v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">
+    <el-table  :key='tableKey' :data="list" :default-sort="{prop: 'jobId', order: 'aescending'}" v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">
 
-      <el-table-column align="center" label="ID" width="130" sortable prop="id">
+      <el-table-column align="center" label="ID" width="130" sortable prop="jobId">
         <template scope="scope">
-          <span>{{scope.row.id}}</span>
+          <span>{{scope.row.jobId}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column min-width="140px" label="Job_name" sortable prop="name" sortable>
+      <el-table-column min-width="140px" label="Job_name" sortable prop="wfJobName" sortable>
         <template scope="scope">
-          <router-link :to="{name:'Tree',params: {taskId: scope.row.id}}">
-            <el-button type="text" >{{scope.row.name}}</el-button>
+          <router-link :to="{name:'Tree',params: {taskId: scope.row.jobId}}">
+            <el-button type="text" >{{scope.row.wfJobName}}</el-button>
           </router-link>
         </template>
       </el-table-column>
@@ -74,7 +74,7 @@
 
     <div v-show="!listLoading" class="pagination-container">
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]"
-        :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+        :page-size="listQuery.rows" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
@@ -83,7 +83,7 @@
 </template>
 
 <script>
-    import { fetchSubTaskList } from 'api/task';
+    import { queryWfJobsList } from 'api/task';
     import { parseTime, objectMerge } from 'utils';
 
     export default {
@@ -97,16 +97,13 @@
           displayStatus: ['Success', 'Running', 'Falled', 'Waiting'],
           listQuery: {
             page: 1,
-            limit: 20,
-            name: undefined,
-            author: undefined,
-            sort: '+id',
+            rows: 20,
             status: '',
             searchStr: ''
           },
           temp: {
-            id: undefined,
-            name: '',
+            jobId: undefined,
+            wfJobName: '',
             author: '',
             startTime: '',
             endTime: '',
@@ -121,8 +118,8 @@
           showAuditor: false,
           tableKey: 0,
           form: {
-            id: undefined,
-            name: '',
+            jobId: undefined,
+            wfJobName: '',
             author: '',
             startTime: '',
             endTime: '',
@@ -157,9 +154,9 @@
       methods: {
         getList() {
           this.listLoading = true;
-          fetchSubTaskList(this.listQuery).then(response => {
-            this.list = response.items;
-            this.total = response.total;
+          queryWfJobsList(this.listQuery).then(response => {
+            this.list = response.data.rows;
+            this.total = response.data.total;
             this.listLoading = false;
           })
         },
@@ -171,7 +168,7 @@
           this.getList();
         },
         handleSizeChange(val) {
-          this.listQuery.limit = val;
+          this.listQuery.rows = val;
           this.getList();
         },
         handleCurrentChange(val) {
