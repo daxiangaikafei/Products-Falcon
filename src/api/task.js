@@ -78,7 +78,7 @@ export function queryReferJob(jobId) {
 
 export function queryWfJobsList(query) {
   return fetch({
-    url: '/task/job/queryWfJobsList.html',
+    url: '/falcon/job/queryWfJobsList.html',
     method: 'post',
     data: query
   });
