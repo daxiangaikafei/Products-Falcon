@@ -7,6 +7,7 @@ if (!process.env.NODE_ENV) {
 var opn = require('opn')
 var path = require('path');
 var express = require('express');
+var proxy = require('http-proxy-middleware');
 var webpack = require('webpack');
 var proxyMiddleware = require('http-proxy-middleware');
 var webpackConfig = require('./webpack.dev.conf');
@@ -57,8 +58,8 @@ app.use(require('connect-history-api-fallback')());
 // serve webpack bundle output
 app.use(devMiddleware);
 
-app.use('/falcon', proxyMiddleware({target: 'http://falcon.tengrong-data.com', changeOrigin: true}));
-
+// proxy , dev remote joint debugging
+// app.use('/falcon', proxy({target: 'http://falcon.tengrong-data.com', changeOrigin: true}));
 
 // enable hot-reload and state-preserving
 // compilation error display
