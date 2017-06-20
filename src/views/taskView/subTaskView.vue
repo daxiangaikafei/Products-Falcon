@@ -3,60 +3,55 @@
     <div class="filter-container">
       <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="Job_name、提交人" v-model="listQuery.searchStr">
       </el-input> 
-      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.author"> 
+      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.userName"> 
       </el-input>-->
       <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" v-waves icon="circle-close" @click="clearFilter">清除</el-button>
       <span class="filter-item" style="margin-left:12px;font-size:14px">展示天数：</span>
-      <el-radio-group v-model="displayDays" size="small" class="filter-item">
-        <el-radio-button label="1"></el-radio-button>
-        <el-radio-button label="7"></el-radio-button>
-        <el-radio-button label="15"></el-radio-button>
-        <el-radio-button label="30"></el-radio-button>
-        <el-radio-button label="all"></el-radio-button>
+      <el-radio-group v-model="listQuery.days" size="small" class="filter-item" @change="handleDaysChange">
+        <el-radio-button v-for="status in dayOptions" :label="status.value" :key="status.value">{{status.label}}</el-radio-button>
       </el-radio-group>
-      <!--<span class="filter-item" style="margin-left:12px;font-size:14px">Status：</span>
-      <el-checkbox-group v-model="displayStatus" size="small" class="filter-item">
-        <el-checkbox-button v-for="status in statusOptions" :label="status" :key="status">{{status}}</el-checkbox-button>
-      </el-checkbox-group>-->
+      <span class="filter-item" style="margin-left:12px;font-size:14px">Status：</span>
+      <el-radio-group v-model="listQuery.status" size="small" class="filter-item" @change="handleStatusChange">
+        <el-radio-button v-for="status in statusOptions" :label="status.value" :key="status.value">{{status.label}}</el-radio-button>
+      </el-radio-group>
     </div>
 
-    <el-table  :key='tableKey' :data="list" :default-sort="{prop: 'jobId', order: 'aescending'}" v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">
+    <el-table  :key='tableKey' :data="list" :default-sort="{prop: 'wfJobId', order: 'aescending'}" v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">
 
-      <el-table-column align="center" label="ID" width="130" sortable prop="jobId">
+      <el-table-column align="center" label="ID" width="330" sortable prop="wfJobId">
         <template scope="scope">
-          <span>{{scope.row.jobId}}</span>
+          <span>{{scope.row.wfJobId}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column min-width="140px" label="Job_name" sortable prop="wfJobName" sortable>
+      <el-table-column min-width="240px" label="Job_name" sortable prop="wfJobName" sortable>
         <template scope="scope">
-          <router-link :to="{name:'Tree',params: {taskId: scope.row.jobId}}">
-            <el-button type="text" >{{scope.row.wfJobName}}</el-button>
+          <router-link class="link" :to="{name:'Tree',params: {taskId: scope.row.wfJobName}}">
+            {{scope.row.wfJobName}}
           </router-link>
         </template>
       </el-table-column>
 
       <el-table-column width="200px" align="center" label="开始时间" prop="startTime" sortable>
         <template scope="scope">
-          <span>{{scope.row.startTime | parseTime}}</span>
+          <span>{{scope.row.startTime}}</span>
         </template>
       </el-table-column>
 
       <el-table-column width="200px" align="center" label="结束时间" prop="endTime" sortable>
         <template scope="scope">
-          <span>{{scope.row.endTime | parseTime}}</span>
+          <span>{{scope.row.endTime}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="150px" align="center" label="运行时长" prop="exeDuration" sortable>
+      <el-table-column width="150px" align="center" label="运行时长" prop="runTime" sortable>
         <template scope="scope">
-          <span>{{scope.row.exeDuration | parseTime('{i}:{s}')}}</span>
+          <span>{{scope.row.runTime}}</span>
         </template>
       </el-table-column>
 
       <el-table-column class-name="status-col" label="Status" width="110" sortable prop="status"
-        :filters="[{ text: 'Success', value: 'Success' }, { text: 'Falled', value: 'Falled' }, { text: 'Running', value: 'Running' }, { text: 'Waiting', value: 'Waiting' }]" 
         :filter-method="showStatusFilter"
         filter-placement="bottom-end">
         <template scope="scope">
@@ -64,9 +59,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="110px" align="center" label="提交人" sortable prop="author">
+      <el-table-column width="110px" align="center" label="提交人" sortable prop="userName">
         <template scope="scope">
-          <span>{{scope.row.author}}</span>
+          <span>{{scope.row.userName}}</span>
         </template>
       </el-table-column>
 
@@ -93,38 +88,75 @@
           list: null,
           total: null,
           listLoading: true,
-          displayDays: 'all',
-          displayStatus: ['Success', 'Running', 'Falled', 'Waiting'],
           listQuery: {
             page: 1,
             rows: 20,
             status: '',
-            searchStr: ''
+            days: ''
           },
           temp: {
-            jobId: undefined,
+            wfJobId: undefined,
             wfJobName: '',
-            author: '',
+            userName: '',
             startTime: '',
             endTime: '',
             updateTime: '',
-            exeDuration: '',
+            runTime: '',
             status: 'Waiting'
           },
           importanceOptions: [1, 2, 3],
-          statusOptions: ['Success', 'Running', 'Falled', 'Waiting'],
+          statusOptions: [
+            {
+              label:'Succeeded',
+              value:'SUCCEEDED'
+            },
+            {
+              label:'Running',
+              value:'RUNNING'
+            },
+            {
+              label:'Killed',
+              value:'KILLED'
+            },
+            {
+              label:'All',
+              value:''
+            }
+          ],
+          dayOptions: [
+            {
+              label:'1',
+              value:1
+            },
+            {
+              label:'7',
+              value:7
+            },
+            {
+              label:'15',
+              value:15
+            },
+            {
+              label:'30',
+              value:30
+            },
+            {
+              label:'All',
+              value:''
+            }
+          ],
           dialogStatus: '',
           editorDialogVisable: false,
           showAuditor: false,
           tableKey: 0,
           form: {
-            jobId: undefined,
+            wfJobId: undefined,
             wfJobName: '',
-            author: '',
+            userName: '',
             startTime: '',
             endTime: '',
             updateTime: '',
-            exeDuration: '',
+            runTime: '',
             status: 'Waiting'                  
           },
           loading: false
@@ -139,12 +171,11 @@
       filters: {
         statusFilter(status) {
           const statusMap = {
-            Success: 'success',
-            Running: 'primary',
-            Falled: 'danger',
-            Waiting: 'warning'
+            succeeded: 'success',
+            running: 'primary',
+            killed: 'danger',
           };
-          return statusMap[status]
+          return statusMap[status.toLowerCase()]
         },
         typeFilter(type) {
           return calendarTypeKeyValue[type]
@@ -173,6 +204,12 @@
         },
         handleCurrentChange(val) {
           this.listQuery.page = val;
+          this.getList();
+        },
+        handleStatusChange(val) {
+          this.getList();
+        },
+        handleDaysChange(val) {
           this.getList();
         },
         timeFilter(time) {
@@ -204,5 +241,8 @@
   }
   .line-more {
     @include text-line-feed(1);
+  }
+  .link {
+    color: #20a0ff;
   }
 </style>
