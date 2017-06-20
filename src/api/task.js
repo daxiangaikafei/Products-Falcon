@@ -83,9 +83,10 @@ export function queryWfJobsList(query) {
     data: query
   });
 }
-export function fetchSubTaskList(query) {
+
+export function queryRunMapList(query) {
   return fetch({
-    url: '/task/subList',
+    url: '/falcon/job/queryRunMapList.html',
     method: 'post',
     data: query
   });
