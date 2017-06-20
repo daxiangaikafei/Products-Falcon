@@ -57,6 +57,9 @@ app.use(require('connect-history-api-fallback')());
 // serve webpack bundle output
 app.use(devMiddleware);
 
+app.use('/falcon', proxyMiddleware({target: 'http://falcon.tengrong-data.com', changeOrigin: true}));
+
+
 // enable hot-reload and state-preserving
 // compilation error display
 app.use(hotMiddleware);

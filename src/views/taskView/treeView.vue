@@ -58,7 +58,7 @@
             [{
               id: 1,
               checked: false,
-              childs: [22,23],
+              childs: [22,23,24],
               childshow: true,
               value: "1"
             },{
@@ -153,6 +153,9 @@
           loading: false
         }
       },
+      created() {
+        this.getList();
+      },
       mounted() {
         this.treeDatasHandler();
       },
@@ -160,48 +163,44 @@
 
       },
       methods: {
-        treeAttheIndex(items){
+        childsIsHide: function(items,chid,cIndex){
           let _this = this;
+          let ischildshow = false;
           items.map(function(n, i){
             if( n.childs && n.childs.length > 0){
-              if(n.childshow){
-                let _isHide = false;
-
-                n.childs.map(function(childid, j){
-                  _this.treeHides.map(function(hideid, l){
-                    if(childid === hideid){
-                      n.childshow = false;
-                      _isHide = true;
-                    }
-                  });
-                });
-                if(_isHide || _this.treeHides.indexOf(n.id) > -1){
-                  n.childs.map(function(childid, j){
-                    if(_this.treeHides.indexOf(childid) <= -1){
-                      _this.treeHides.push(childid);
-                    }
-                  });
+              let _ishave = false;
+              if(n.childs.indexOf(chid) <= -1){
+                _ishave = false;
+              }else{
+                _ishave = true;
+              }
+              if(_ishave){
+                if(n.childshow){
+                  ischildshow = true;
                 }
               }
             }
-            // _this.count ++;
-            // console.log(_this.count);
           });
-
+          if(!ischildshow){
+            if(_this.treeHides.indexOf(chid) <= -1){
+              _this.treeHides.push(chid);
+            }
+          }
         },
-        treeChildShow(items){
+        treeChildShow2(items,cIndex){
           let _this = this;
           items.map(function(n, i){
             if( n.childs && n.childs.length > 0){
-              if(!n.childshow){
+
+              if(_this.treeHides.indexOf(n.id) > -1){
+                n.childshow = false;
+              }
+              if(!n.childshow){ //子集不显示
                 n.childs.map(function(chid, j){
-                  if(_this.treeHides.indexOf(chid) <= -1){
-                    _this.treeHides.push(chid);
-                    _this.treeAttheIndex(items);
-                  }
+                  _this.childsIsHide(items,chid,cIndex);
                 });
-              }else{
-                _this.treeAttheIndex(items);
+              }else{ //子集显示
+                // _this.treeAttheIndex2(items);
               }
             }else{
               n.childshow = false;
@@ -221,7 +220,7 @@
           let treeChart = document.getElementById("treeChart");
           _this.count = 0;
           treeDatas.map(function(n,i){
-            _this.treeChildShow(n);
+            _this.treeChildShow2(n,i);
           });
 
           // return;
@@ -310,30 +309,30 @@
             });
             this.treeHides = [];
 
-            let _haverepeat = [];
-            this.treeDatas[_index].map(function(item,index){
-              if(item.childs && item.childs.length > 0){
-                if(_isshow){
-                  _childs.map(function(childid,j){
-                    // console.log(item.childs.indexOf(childid) > -1 , _childs, childid);
-                    if(item.childs.indexOf(childid) > -1){
-                      item.childshow = true;
-                      _haverepeat.push(childid);
-                    }else{
-                      if(_haverepeat.indexOf(childid) > -1){
-                        item.childshow = true;
-                      }
-                    }
-                  });
-                }else{
-                  _childs.map(function(childid,j){
-                    if(item.childs.indexOf(childid) > -1){
-                      item.childshow = false;
-                    }
-                  });
-                }
-              }
-            });
+            // let _haverepeat = [];
+            // this.treeDatas[_index].map(function(item,index){
+            //   if(item.childs && item.childs.length > 0){
+            //     if(_isshow){
+            //       _childs.map(function(childid,j){
+            //         // console.log(item.childs.indexOf(childid) > -1 , _childs, childid);
+            //         if(item.childs.indexOf(childid) > -1){
+            //           item.childshow = true;
+            //           _haverepeat.push(childid);
+            //         }else{
+            //           if(_haverepeat.indexOf(childid) > -1){
+            //             item.childshow = true;
+            //           }
+            //         }
+            //       });
+            //     }else{
+            //       _childs.map(function(childid,j){
+            //         if(item.childs.indexOf(childid) > -1){
+            //           item.childshow = false;
+            //         }
+            //       });
+            //     }
+            //   }
+            // });
 
             this.treeDatasHandler();
           }
