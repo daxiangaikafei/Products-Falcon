@@ -107,9 +107,9 @@ export default new Router({
       meta: { role: ['admin'] },
       children: [
           { path: 'subTaskView', component: SubTaskView, name: '查看子任务状态' },
-          { path: 'treeView/:taskId', component: TreeView, name: 'Tree', hidden: true },
-          { path: 'dutrationView/:taskId', component: DutrationView, name: 'Dutration', hidden: true },
-          { path: 'logView/:taskId', component: LogView, name: 'Log', hidden:true }
+          { path: 'treeView/:taskId/:wfId', component: TreeView, name: 'Tree', hidden: true },
+          { path: 'dutrationView/:taskId/:wfId', component: DutrationView, name: 'Dutration', hidden: true },
+          { path: 'logView/:taskId/:wfId', component: LogView, name: 'Log', hidden:true }
       ]
     },
     // {
