@@ -9,43 +9,41 @@
       :key='tableKey' 
       :data="list" 
       :default-sort="{prop: 'id', order: 'aescending'}" 
-      @selection-change="handleSelectionChange"
-      @sort-change="handleSortChange"
       v-loading.body="listLoading" 
       border fit highlight-current-row 
       style="width: 100%">
-      <el-table-column align="center" label="ID" width="130" sortable prop="id">
+      <el-table-column align="center" label="ID" width="300" sortable prop="wfJobId">
         <template scope="scope">
-          <span>{{id}}</span>
+          <span>{{scope.row.wfJobId}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column min-width="140px" label="Job_name" sortable prop="name" sortable>
+      <el-table-column min-width="240px" label="Job_name" sortable prop="wfJobName" sortable>
         <template scope="scope">
-          <span >{{scope.row.name}}</span>
+          <span >{{scope.row.wfJobName}}</span>
         </template>
       </el-table-column>
 
       <el-table-column width="200px" align="center" label="开始时间" prop="startTime" sortable>
         <template scope="scope">
-          <span>{{scope.row.startTime | parseTime}}</span>
+          <span>{{scope.row.startTime}}</span>
         </template>
       </el-table-column>
 
       <el-table-column width="200px" align="center" label="结束时间" prop="endTime" sortable>
         <template scope="scope">
-          <span>{{scope.row.endTime | parseTime}}</span>
+          <span>{{scope.row.endTime}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="150px" align="center" label="运行时长" prop="exeDuration" sortable>
+      <el-table-column width="150px" align="center" label="运行时长" prop="runTime" sortable>
         <template scope="scope">
-          <span>{{scope.row.exeDuration | parseTime('{i}:{s}')}}</span>
+          <span>{{scope.row.runTime}}</span>
         </template>
       </el-table-column>
 
       <el-table-column class-name="status-col" label="Status" width="110" sortable prop="status"
-        :filters="[{ text: 'Success', value: 'Success' }, { text: 'Falled', value: 'Falled' }, { text: 'Running', value: 'Running' }, { text: 'Waiting', value: 'Waiting' }]" 
+        :filters="[{ text: 'Success', value: 0 }, { text: 'Falled', value: 1 }, { text: 'Running', value: 2 }, { text: 'Waiting', value: 3 }]" 
         :filter-method="showStatusFilter"
         filter-placement="bottom-end">
         <template scope="scope">
@@ -53,9 +51,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="110px" align="center" label="提交人" sortable prop="author">
+      <el-table-column width="110px" align="center" label="提交人" sortable prop="userName">
         <template scope="scope">
-          <span>{{scope.row.author}}</span>
+          <span>{{scope.row.userName}}</span>
         </template>
       </el-table-column>
 
@@ -68,17 +66,17 @@
       </el-table-column>-->
     </el-table>
 
-    <div v-show="!listLoading" class="pagination-container">
+    <!--<div v-show="!listLoading" class="pagination-container">
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]"
-        :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+        :page-size="listQuery.rows" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
-    </div>
+    </div>-->
 
   </div>
 </template>
 
 <script>
-    import { fetchSubTaskList } from 'api/task';
+    import { queryRunMapList } from 'api/task';
     import { parseTime, objectMerge } from 'utils';
     import durationLine from './durationLine';
     import TaskMenu from './taskMenu'
@@ -88,7 +86,7 @@
       components: { durationLine, TaskMenu },      
       data() {
         return {
-          id: undefined,
+          wfJobName: undefined,
           list: [],
           total: null,
           listLoading: true,
@@ -96,22 +94,19 @@
           displayStatus: ['Success', 'Running', 'Falled', 'Waiting'],
           selection: [],
           listQuery: {
-            page: 1,
-            limit: 10,
-            name: undefined,
-            author: undefined,
-            sort: '+id',
-            status: ''
+            // page: 1,
+            // rows: 10,
+            wfJobName: ''
           },
           temp: {
-            id: undefined,
-            name: '',
-            author: '',
+            jobId: undefined,
+            wfJobId: '',
+            wfJobName: '',
+            userName: '',
             startTime: '',
             endTime: '',
-            updateTime: '',
-            exeDuration: '',
-            status: 'Waiting'
+            runTime: '',
+            status: ''
           },
           importanceOptions: [1, 2, 3],
           statusOptions: ['Success', 'Running', 'Falled', 'Waiting'],
@@ -124,14 +119,14 @@
           showAuditor: false,
           tableKey: 0,
           form: {
-            id: undefined,
-            name: '',
-            author: '',
+            jobId: undefined,
+            wfJobId: '',
+            wfJobName: '',
+            userName: '',
             startTime: '',
             endTime: '',
-            updateTime: '',
-            exeDuration: '',
-            status: 'Waiting'                
+            runTime: '',
+            status: ''              
           },
           loading: false,
           chartOptions: {
@@ -237,22 +232,33 @@
       },
       
       created() {
+        this.wfJobName = this.$route.params.taskId
+        this.listQuery.wfJobName = this.wfJobName
         this.getList();
-        this.id = this.$route.params.taskId
+        
       },
       updated() {
-        if(this.list && this.list[0]) {
-          this.toggleSelection(this.list[0])
-        }
+        // if(this.list && this.list[0]) {
+        //   this.toggleSelection(this.list[0])
+        // }
       },
       filters: {
         statusFilter(status) {
           const statusMap = {
-            Success: 'success',
-            Running: 'primary',
-            Falled: 'danger',
-            Waiting: 'warning'
+            succeeded: 'success',
+            running: 'primary',
+            killed: 'danger',
+            waiting: 'warning'
           };
+          return statusMap[status.toLowerCase()]
+        },
+        statusTextFilter(status) {
+          const statusMap = [
+            'Success',
+            'Falled',
+            'Running',
+            'Waiting'
+          ];
           return statusMap[status]
         },
         typeFilter(type) {
@@ -265,45 +271,55 @@
       methods: {
         getList() {
           this.listLoading = true;
-          fetchSubTaskList(this.listQuery).then(response => {
-            this.list = response.items;
-            this.total = response.total;
+          queryRunMapList(this.listQuery).then(response => {
+            this.list = response.data;
+            // this.total = response.data;
+            let dates = [],
+                durations = []
+            this.list.forEach(item => {
+              dates.push(item.startTime.split(' ')[0])
+              durations.push(item.runSeconds)
+            })
+            // debugger
+            this.chartOptions.xAxis[0].data = dates
+            this.chartOptions.series[0].data = durations
+            this.chartOptions.title.text = '当前查看任务： '+this.wfJobName
             this.listLoading = false;
           })
         },
         handleFilter() {
           this.getList();
         },
-        clearFilter() {
-          this.listQuery.groupName = ''
-          this.listQuery.author = ''
-          this.getList();
-        },
-        toggleSelection(row) {
-          if(row) {
-            this.$refs.listTable.setCurrentRow(row)
-            this.handleRowClick(row)
-          }
-        },
+        // clearFilter() {
+        //   this.listQuery.groupName = ''
+        //   this.listQuery.userName = ''
+        //   this.getList();
+        // },
+        // toggleSelection(row) {
+        //   if(row) {
+        //     this.$refs.listTable.setCurrentRow(row)
+        //     this.handleRowClick(row)
+        //   }
+        // },
         handleSelectionChange(val) {
           this.selection = val
         },
-        handleSizeChange(val) {
-          this.listQuery.limit = val;
-          this.getList();
-        },
-        handleCurrentChange(val) {
-          this.listQuery.page = val;
-          this.getList();
-        },
-        handleSortChange() {
-          this.$refs.listTable.setCurrentRow()
-        },
-        handleRowClick(row) {
-          this.chartOptions.xAxis[0].data = row.dates
-          this.chartOptions.series[0].data = row.durations
-          this.chartOptions.title.text = '当前查看任务： '+row.name
-        },
+        // handleSizeChange(val) {
+        //   this.listQuery.rows = val;
+        //   this.getList();
+        // },
+        // handleCurrentChange(val) {
+        //   this.listQuery.page = val;
+        //   this.getList();
+        // },
+        // handleSortChange() {
+        //   this.$refs.listTable.setCurrentRow()
+        // },
+        // handleRowClick(row) {
+        //   this.chartOptions.xAxis[0].data = row.dates
+        //   this.chartOptions.series[0].data = row.durations
+        //   this.chartOptions.title.text = '当前查看任务： '+row.name
+        // },
         timeFilter(time) {
           if (!time[0]) {
             this.listQuery.start = undefined;

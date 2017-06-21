@@ -162,246 +162,258 @@
 </template>
 
 <script>
-    import { fetchList, runOrStop, deleteJob, saveOrUpdate } from 'api/task';
-    import { parseTime, objectMerge, timeToStamp } from 'utils';
+  import { fetchList, stop, saveOrUpdate, queryJobInfo } from 'api/task';
+  import { fetchList as fetchGroupList } from 'api/group';
+  import { parseTime, objectMerge, timeToStamp } from 'utils';
 
-    export default {
-      name: 'TaskManager',
-      data() {
-        return {
-          list: null,
-          total: null,
-          listLoading: true,
-          listQuery: {
-            page: 1,
-            rows: 20,
-            keyword: ''
-          },
-          temp: {
-            id: undefined,
-            name: '',
-            scriptName: '',
-            ownerProjectId: 0,
-            ownerProjectName: '',
-            db: 'SSA',
-            cycle: 'daily',
-            depend: [],
-            startTime: '',
-            startDate: '',
-            endDate: '',
-            updateTime: '',   
-            status: 'Waiting',
-            userName: '' 
-          },
-          importanceOptions: [1, 2, 3],
-          sortOptions: [{ label: '按ID升序', key: '+id' }, { label: '按ID降序', key: '-id' }],
-          statusOptions: ['Success', 'Running', 'Falled', 'Waiting'],
-          dialogFormVisible: false,
-          dialogStatus: '',
-          textMap: {
-            update: '编辑',
-            create: '创建'
-          },
-          dialogPvVisible: false,
-          editorDialogVisable: false,
-          pvData: [],
-          showAuditor: false,
-          tableKey: 0,
-          form: {
-            id: undefined,
-            name: '',
-            scriptName: '',
-            ownerProjectId: 0,
-            ownerProjectName: '',
-            db: 'SSA',
-            cycle: 'daily',
-            depend: [],
-            startTime: '',
-            startDate: '',
-            endDate: '',
-            updateTime: '',   
-            status: 'Waiting',
-            userName: ''                     
-          },
-          loading: false,
-          options: [{
-            value: 'HTML',
-            label: 'HTML'
-          }, {
-            value: 'CSS',
-            label: 'CSS'
-          }, {
-            value: 'JavaScript',
-            label: 'JavaScript'
-          }],
-          states: ["HTML","CSS","JavaScript","PHP", "Java", "Ruby",
-          "Python", "NodeJS", "C","C++", "C#", "Perl","Swift", "Go", "R", "Object-C",
-          "Visual Basic", "SQL", "Scala", "Lua","Dart", "Lisp","Bash"]
-        }
-      },
-      
-      created() {
-        this.getList();
-      },
-      mounted() {
-        this.form.dependList = this.states.map(item => {
-          return { value: item, label: item };
-        });
-      },
-      filters: {
-        statusFilter(status) {
-          const statusMap = [
-            'success',
-            'primary',
-            'danger',
-            'warning'
-          ];
-          return statusMap[status]
+  export default {
+    name: 'TaskManager',
+    data() {
+      return {
+        list: null,
+        total: null,
+        listLoading: true,
+        listQuery: {
+          page: 1,
+          rows: 20,
+          keyword: ''
         },
-        statusTextFilter(status) {
-          const statusMap = [
-            'Success',
-            'Falled',
-            'Running',
-            'Waiting'
-          ];
-          return statusMap[status]
+        temp: {
+          id: undefined,
+          name: '',
+          shellName: '',
+          ownerProjectId: 0,
+          ownerProject: '',
+          dataLevel: 'SSA',
+          cycle: '',
+          referIds: [],
+          startTime: '',
+          startDate: '',
+          endDate: '',
+          updateTime: '',   
+          status: 0,
+          userName: '' 
         },
-        typeFilter(type) {
-          return calendarTypeKeyValue[type]
-        }
+        dialogStatus: '',
+        textMap: {
+          update: '编辑',
+          create: '创建'
+        },
+        dialogPvVisible: false,
+        editorDialogVisable: false,
+        tableKey: 0,
+        form: {
+          id: undefined,
+          name: '',
+          shellName: '',
+          ownerProjectId: 0,
+          ownerProject: '',
+          dataLevel: 'SSA',
+          cycle: 'daily',
+          depend: [],
+          startTime: '',
+          startDate: '',
+          endDate: '',
+          updateTime: '',   
+          status: 'Waiting',
+          userName: ''                     
+        },
+        loading: false,
+        referIdsOptions: [],
+        ownerProjectsOptions: [],
+        states: []
+      }
+    },
+    
+    created() {
+      this.getList();
+    },
+    mounted() {
+      this.form.dependList = this.states.map(item => {
+        return { value: item, label: item };
+      });
+    },
+    filters: {
+      statusFilter(status) {
+        const statusMap = [
+          'success',
+          'primary',
+          'danger',
+          'warning'
+        ];
+        return statusMap[status]
       },
-      
-      methods: {
-        getList() {
-          this.listLoading = true;
-          fetchList(this.listQuery).then(response => {
-            this.list = response.data.rows;
-            this.total = response.data.total;
-            this.listLoading = false;
-          })
-        },
-        getDepend(query) {
-          if (query !== '') {
-            this.loading = true;
-            setTimeout(() => {
-              this.loading = false;
-              this.options = this.form.dependList.filter(item => {
+      statusTextFilter(status) {
+        const statusMap = [
+          'Success',
+          'Falled',
+          'Running',
+          'Waiting'
+        ];
+        return statusMap[status]
+      },
+      typeFilter(type) {
+        return calendarTypeKeyValue[type]
+      }
+    },
+    
+    methods: {
+      getList() {
+        this.listLoading = true;
+        fetchList(this.listQuery).then(response => {
+          this.list = response.data.rows;
+          this.total = response.data.total;
+          this.listLoading = false;
+        })
+      },
+      getReferIds(query) {
+        if (query !== '') {
+          this.loading = true;
+          fetchList({keyword:query,page:1,rows:500}).then(response => {
+            this.loading = false;
+            if(response.success && response.data.rows) {
+              this.states = response.data.rows.map(item => {
+                return { value: item.id, label: item.name };
+              })
+              this.referIdsOptions = this.states.filter(item => {
                 return item.label.toLowerCase()
                   .indexOf(query.toLowerCase()) > -1;
-              });
-            }, 200);
-          } else {
-            this.options = [];
-          }
-        },
-        handleFilter() {
-          this.getList();
-        },
-        clearFilter() {
-          this.listQuery.keyword = ''
-          this.getList();
-        },
-        handleSizeChange(val) {
-          this.listQuery.rows = val;
-          this.getList();
-        },
-        handleCurrentChange(val) {
-          this.listQuery.page = val;
-          this.getList();
-        },
-        timeFilter(time) {
-          if (!time[0]) {
-            this.listQuery.start = undefined;
-            this.listQuery.end = undefined;
-            return;
-          }
-          this.listQuery.start = parseInt(+time[0] / 1000);
-          this.listQuery.end = parseInt((+time[1] + 3600 * 1000 * 24) / 1000);
-        },
-        handleModifyStatus(row, status) {
-          this.loading = true;
-          runOrStop(2, row.id+'').then(response => {
-            this.loading = false;
-            if (response.success) {
-              this.$message({
-                message: '操作成功',
-                type: 'success'
-              })
-              row.status = status;
-            } else {
-              this.$message({
-                message: '操作失败',
-                type: 'error'
               })
             }
           })
-          
-        },
-        handleUpdate(row) {
-          objectMerge(this.form, row)
+        } else {
+          this.referIdsOptions = [];
+        }
+      },
+      getOwnerProjects(query) {
+        if (query !== '') {
+          this.loading = true;
+          fetchGroupList({keyword:query,page:1,rows:500}).then(response => {
+            this.loading = false;
+            if(response.success && response.data.rows) {
+              this.states = response.data.rows.map(item => {
+                return { value: item.id, label: item.name };
+              })
+              this.ownerProjectsOptions = this.states.filter(item => {
+                return item.label.toLowerCase()
+                  .indexOf(query.toLowerCase()) > -1;
+              })
+            }
+          })
+        } else {
+          this.ownerProjectsOptions = [];
+        }
+      },
+      handleFilter() {
+        this.getList();
+      },
+      clearFilter() {
+        this.listQuery.keyword = ''
+        this.getList();
+      },
+      handleSizeChange(val) {
+        this.listQuery.rows = val;
+        this.getList();
+      },
+      handleCurrentChange(val) {
+        this.listQuery.page = val;
+        this.getList();
+      },
+      timeFilter(time) {
+        if (!time[0]) {
+          this.listQuery.start = undefined;
+          this.listQuery.end = undefined;
+          return;
+        }
+        this.listQuery.start = parseInt(+time[0] / 1000);
+        this.listQuery.end = parseInt((+time[1] + 3600 * 1000 * 24) / 1000);
+      },
+      handleModifyStatus(row, status) {
+        this.loading = true;
+        stop(2, row.id+'').then(response => {
+          this.loading = false;
+          if (response.success) {
+            this.$message({
+              message: '操作成功',
+              type: 'success'
+            })
+            row.status = status;
+          } else {
+            this.$message({
+              message: '操作失败',
+              type: 'error'
+            })
+          }
+        })
+        
+      },
+      handleUpdate(row) {
+        queryJobInfo(row.id).then(response => {
+          objectMerge(this.form, response.data)
           objectMerge(this.temp, this.form)
           this.dialogStatus = 'update';
           this.editorDialogVisable = true;
-        },
-        update() {
-          this.form.updateTime = +new Date()
-          for (let v of this.list) {
-            if (v.id === this.form.id) {
-              objectMerge(v, this.form)
-              break
-            }
+        })   
+      },
+      update() {
+        this.form.referIds = this.form.referIds.join()
+        this.form.updateTime = parseTime(new Date())
+        for (let v of this.list) {
+          if (v.id === this.form.id) {
+            objectMerge(v, this.form)
+            break
           }
-          this.editorDialogVisable = false;
-          saveOrUpdate(this.form).then(response => {
-            if (response.success) {
-              this.$notify({
-                title: '成功',
-                message: '保存成功',
-                type: 'success',
-                duration: 2000
-              });
-            } else {
-              this.$notify({
-                title: '失败',
-                message: '保存失败',
-                type: 'error',
-                duration: 2000
-              });
-            }
-          })
-        },
-        commit() {
-          this.editorDialogVisable = false;
-          saveOrUpdate(this.form).then(response => {
-            if (response.success) {
-              this.$notify({
-                title: '成功',
-                message: '提交成功',
-                type: 'success',
-                duration: 2000
-              });
-            } else {
-              this.$notify({
-                title: '失败',
-                message: '提交失败',
-                type: 'error',
-                duration: 2000
-              });
-            }
-          })
-        },
-        reset() {
-          objectMerge(this.form, this.temp)          
-        },
-        showStatusFilter(value, row) {
-          return row.status === value
-        },
-        timeHandler(key) {
-          timeToStamp(key, this.form)
         }
+        this.editorDialogVisable = false;
+        saveOrUpdate(this.form).then(response => {
+          if (response.success) {
+            this.$notify({
+              title: '成功',
+              message: '保存成功',
+              type: 'success',
+              duration: 2000
+            });
+          } else {
+            this.$notify({
+              title: '失败',
+              message: '保存失败',
+              type: 'error',
+              duration: 2000
+            });
+          }
+        })
+      },
+      commit() {
+        this.editorDialogVisable = false;
+        saveOrUpdate(this.form).then(response => {
+          if (response.success) {
+            this.$notify({
+              title: '成功',
+              message: '提交成功',
+              type: 'success',
+              duration: 2000
+            });
+          } else {
+            this.$notify({
+              title: '失败',
+              message: '提交失败',
+              type: 'error',
+              duration: 2000
+            });
+          }
+        })
+      },
+      reset() {
+        objectMerge(this.form, this.temp)          
+      },
+      showStatusFilter(value, row) {
+        return row.status === value
+      },
+      timeHandler(key) {
+        timeToStamp(key, this.form)
       }
     }
+  }
 </script>
 
 <style lang="scss">

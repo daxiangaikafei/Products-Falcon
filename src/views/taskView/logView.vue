@@ -19,7 +19,7 @@
     data() {
       return {
         listQuery: {
-          id:undefined
+          wfJobName:undefined
         },
         log: '',
         cHeight: 0
@@ -28,7 +28,7 @@
     created() {
       this.getLog()
       this.cHeight = window.innerHeight - 100
-      this.listQuery.id = this.$route.params.taskId      
+      this.listQuery.wfJobName = this.$route.params.taskId      
     },
     mounted() {
     },
@@ -36,7 +36,7 @@
       getLog() {
         this.listLoading = true;
         fetchLog(this.listQuery).then(response => {
-          this.log = response.items;
+          this.log = response.data;
           this.listLoading = false;
         })
       },
