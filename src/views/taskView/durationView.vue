@@ -272,19 +272,28 @@
         getList() {
           this.listLoading = true;
           queryRunMapList(this.listQuery).then(response => {
-            this.list = response.data;
-            // this.total = response.data;
-            let dates = [],
-                durations = []
-            this.list.forEach(item => {
-              dates.push(item.startTime.split(' ')[0])
-              durations.push(item.runSeconds)
-            })
-            // debugger
-            this.chartOptions.xAxis[0].data = dates
-            this.chartOptions.series[0].data = durations
-            this.chartOptions.title.text = '当前查看任务： '+this.wfJobName
-            this.listLoading = false;
+            if (response.success) {
+              this.list = response.data;
+              // this.total = response.data;
+              let dates = [],
+                  durations = []
+              this.list.forEach(item => {
+                dates.push(item.startTime.split(' ')[0])
+                durations.push(item.runSeconds)
+              })
+              // debugger
+              this.chartOptions.xAxis[0].data = dates
+              this.chartOptions.series[0].data = durations
+              this.chartOptions.title.text = '当前查看任务： '+this.wfJobName
+              this.listLoading = false;
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
           })
         },
         handleFilter() {
