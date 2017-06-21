@@ -59,7 +59,7 @@ app.use(require('connect-history-api-fallback')());
 app.use(devMiddleware);
 
 // proxy , dev remote joint debugging
-// app.use('/falcon', proxy({target: 'http://falcon.tengrong-data.com', changeOrigin: true}));
+app.use('/falcon', proxy({target: 'http://falcon.tengrong-data.com', changeOrigin: true}));
 
 // enable hot-reload and state-preserving
 // compilation error display

@@ -2,8 +2,8 @@
   <div class="app-container calendar-list-container">
     <div class="filter-container">
       <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="任务组名、提交人" v-model="listQuery.keyword">
-      </el-input> 
-      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.userName"> 
+      </el-input>
+      <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.userName">
       </el-input>-->
       <el-button class="filter-item" type="primary" v-waves icon="search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" v-waves icon="circle-close" @click="clearFilter">清除</el-button>
@@ -49,13 +49,13 @@
             width="230"
             trigger="hover"
             :content="scope.row.descripe">-->
-            <span class="line-more" slot="reference" >{{scope.row.descripe}}</span>          
+            <span class="line-more" slot="reference" >{{scope.row.descripe}}</span>
           <!--</el-popover>-->
         </template>
       </el-table-column>
 
       <el-table-column class-name="status-col" label="Status" width="110" sortable prop="status"
-        :filters="[{ text: 'Success', value: 0 }, { text: 'Falled', value: 1 }, { text: 'Running', value: 2 }, { text: 'Waiting', value: 3 }]" 
+        :filters="[{ text: 'Success', value: 0 }, { text: 'Falled', value: 1 }, { text: 'Running', value: 2 }, { text: 'Waiting', value: 3 }]"
         :filter-method="showStatusFilter"
         filter-placement="bottom-end">
         <template scope="scope">
@@ -103,7 +103,7 @@
               <el-option label="DM" value="DM"></el-option>
             </el-select>
           </el-form-item>
- 
+
           <el-form-item label="组描述">
             <el-input type="textarea" v-model="form.descripe"></el-input>
           </el-form-item>
@@ -148,7 +148,7 @@
             name: '',
             userName: '',
             createTime: '',
-            dataLevel: 'SSA',            
+            dataLevel: 'SSA',
             endDate: '',
             updateTime: '',
             descripe: '',
@@ -171,14 +171,14 @@
             dataLevel: 'SSA',
             createTime: '',
             endDate: '',
-            descripe: '',            
-            updateTime: '',     
-            status: 'Waiting'                   
+            descripe: '',
+            updateTime: '',
+            status: 'Waiting'
           },
           loading: false
         }
       },
-      
+
       created() {
         this.getList();
       },
@@ -207,7 +207,7 @@
           return calendarTypeKeyValue[type]
         }
       },
-      
+
       methods: {
         getList() {
           this.listLoading = true;
@@ -287,7 +287,7 @@
           });
         },
         reset() {
-          objectMerge(this.form, this.temp)          
+          objectMerge(this.form, this.temp)
         },
         showStatusFilter(value, row) {
           return row.status === value
