@@ -27,7 +27,7 @@
 
       <el-table-column min-width="240px" label="Job名称" sortable prop="wfJobName" sortable>
         <template scope="scope">
-          <router-link class="link" :to="{name:'Tree',params: {taskId: scope.row.wfJobName}}">
+          <router-link class="link" :to="{name:'Tree',params: {taskId: scope.row.jobId, wfId: scope.row.wfJobName}}">
             {{scope.row.wfJobName}}
           </router-link>
         </template>
