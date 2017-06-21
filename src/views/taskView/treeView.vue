@@ -88,39 +88,66 @@
           //queryJobInfo
           this.listLoading = true;
           queryJobInfo(query).then(response => {
-            console.log(response.data);
-            // this.beginDataFormat(response.data,1);
-            var _carrs = [];
-            _carrs.push({
-              id: "1" + response.data.jobId,
-              jobId: response.data.jobId,
-              checked: false,
-              childshow: false,
-              value: response.data.name,
-              childs:[],
-              hasChilds: !!response.data.hasChilds
-            });
-            this.treeDatas.push(_carrs);
-            this.treeDatasHandler();
-            this.listLoading = false;
+            if (response.success) {
+              console.log(response.data);
+              // this.beginDataFormat(response.data,1);
+              var _carrs = [];
+              _carrs.push({
+                id: "1" + response.data.jobId,
+                jobId: response.data.jobId,
+                checked: false,
+                childshow: false,
+                value: response.data.name,
+                childs:[],
+                hasChilds: !!response.data.hasChilds
+              });
+              this.treeDatas.push(_carrs);
+              this.treeDatasHandler();
+              this.listLoading = false;
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
           })
         },
         getParentList(query,index,childindex) {
           this.listLoading = true;
           queryJobRefer(query.jobId).then(response => {
-            // console.log(response.data);
-            this.beginDataFormat(response.data,0);
-            console.log("query.jobId", query.jobId);
-            this.getJobInfo(query.jobId);
-            this.listLoading = false;
+            if (response.success) {
+              // console.log(response.data);
+              this.beginDataFormat(response.data,0);
+              console.log("query.jobId", query.jobId);
+              this.getJobInfo(query.jobId);
+              this.listLoading = false;
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
           })
         },
         getChildList(query,index,childindex) {
           this.listLoading = true;
           queryReferJob(query.jobId).then(response => {
+            if (response.success) {
             // console.log(response.data);
             this.beginDataFormat(response.data,index,childindex);
             this.listLoading = false;
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
           })
         },
         checkRepeat(data, id){
