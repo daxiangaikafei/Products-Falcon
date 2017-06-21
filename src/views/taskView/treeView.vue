@@ -1,6 +1,19 @@
 <template>
   <div class="app-container treeview-container">
     <TaskMenu />
+    <div class="treeview-nav">
+      <p class="treeview-nav-jobName">
+        当前查看的任务: <span v-html="navinfo.jobName"></span>
+      </p>
+      <div class="treeview-nav-btns">
+        <el-button v-if="!navinfo.isChecked" type="primary" @click="(navinfo.isChecked = true)" >选定重跑</el-button>
+        <div v-if="navinfo.isChecked">
+          <el-checkbox v-model="navinfo.checkedAll" @change="checkedAllHandler">全选</el-checkbox>
+          <el-button type="primary" >确定</el-button>
+          <el-button @click="(navinfo.isChecked = false)" >取消</el-button>
+        </div>
+      </div>
+    </div>
     <svg id="treeChart" version="1.1" @click="svgClickHandler" xmlns="http://www.w3.org/2000/svg" @mouseover="svgOverHandler" @mouseout="svgOutHandler">
       <defs>
       <marker id="arrow"
@@ -46,7 +59,8 @@
 <script>
     import { queryJobRefer,queryJobInfo,queryReferJob } from 'api/task';
     import { parseTime, objectMerge } from 'utils';
-    import TaskMenu from './taskMenu'
+    import TaskMenu from './taskMenu';
+    import router from 'router';
     //<line x1="320" y1="30" x2="110" y2="100" style="stroke:rgb(0,0,0);stroke-width:2"/>
     export default {
       name: 'treeView',
@@ -55,6 +69,11 @@
       },
       data() {
         return {
+          navinfo:{
+            jobName:"",
+            isChecked: false,
+            checkedAll: false
+          },
           tooltip:{
             w: 200,
             x: 0,
@@ -88,22 +107,23 @@
           //queryJobInfo
           this.listLoading = true;
           queryJobInfo(query).then(response => {
-            if (response.success) {
-              console.log(response.data);
-              // this.beginDataFormat(response.data,1);
+            if(response.success) {
               var _carrs = [];
               _carrs.push({
-                id: "1" + response.data.jobId,
+                id:  String(this.treeDatas.length) + response.data.jobId,
                 jobId: response.data.jobId,
-                checked: false,
+                checked: true,
                 childshow: false,
                 value: response.data.name,
                 childs:[],
                 hasChilds: !!response.data.hasChilds
               });
+              this.checkedIds.push(response.data.jobId);
               this.treeDatas.push(_carrs);
               this.treeDatasHandler();
+
               this.listLoading = false;
+              this.navinfo.jobName = response.data.name;
             } else {
               this.$notify({
                 title: '失败',
@@ -119,8 +139,10 @@
           queryJobRefer(query.jobId).then(response => {
             if (response.success) {
               // console.log(response.data);
-              this.beginDataFormat(response.data,0);
-              console.log("query.jobId", query.jobId);
+
+              if(response.data && response.data.length >0){
+                this.beginDataFormat(response.data,0);
+              }
               this.getJobInfo(query.jobId);
               this.listLoading = false;
             } else {
@@ -340,19 +362,26 @@
           let _childindex = parseInt(_target.dataset["childindex"]);
           let _id = _target.dataset["id"];
 
+
           if(typeof(_type)!==undefined && _type==="check"){
             this.trees[_index].map(function(items, i){
               if(items.id === _id){
-                items.checked = !items.checked;
-                if(items.checked){
-                  if(_this.checkedIds.indexOf(items.id)<=-1){
-                    _this.checkedIds.push(items.jobId);
+
+                if(_this.navinfo.isChecked){
+                  items.checked = !items.checked;
+                  if(items.checked){
+                    if(_this.checkedIds.indexOf(items.id)<=-1){
+                      _this.checkedIds.push(items.jobId);
+                    }
+                  }else{
+                    let _idindex = _this.checkedIds.indexOf(items.id);
+                    if(_idindex > -1){
+                      _this.checkedIds.splice(_idindex,1);
+                    }
                   }
                 }else{
-                  let _idindex = _this.checkedIds.indexOf(items.id);
-                  if(_idindex > -1){
-                    _this.checkedIds.splice(_idindex,1);
-                  }
+                  // router.replace({path: "/view/treeView/"+items.jobId});
+                  window.open("/#/view/treeView/"+items.jobId+"/0");
                 }
                 return false;
               }
@@ -414,6 +443,14 @@
             _this.tooltip.isShow = false;
             return;
           }
+        },
+        checkedAllHandler(e){
+          let _this = this;
+          this.trees.map(function(items, i){
+            items.map(function(childs, j){
+              childs.checked = _this.navinfo.checkedAll;
+            });
+          });
         }
       }
     }
@@ -424,6 +461,16 @@
   .treeview-container{
     // padding: 0 0;
     overflow-x: scroll;
+  }
+  .treeview-nav{
+    @include flex;
+    @include flex-justify-space-between;
+    @include flex-align-center;
+    height: 36px;
+    margin-bottom: 20px;
+    .treeview-nav-jobName span{
+      color: #20a0ff;
+    }
   }
   .tree-column{
     @include flex;
