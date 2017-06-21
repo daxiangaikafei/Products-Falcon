@@ -212,9 +212,18 @@
         getList() {
           this.listLoading = true;
           fetchList(this.listQuery).then(response => {
-            this.list = response.data.rows;
-            this.total = response.data.pageCount;
-            this.listLoading = false;
+            if (response.success) {
+              this.list = response.data.rows;
+              this.total = response.data.pageCount;
+              this.listLoading = false;
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
           })
         },
         handleFilter() {
