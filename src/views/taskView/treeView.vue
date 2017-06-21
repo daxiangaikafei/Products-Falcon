@@ -1,7 +1,7 @@
 <template>
-  <div class="app-container ">
+  <div class="app-container treeview-container">
     <TaskMenu />
-    <svg id="treeChart" version="1.1" @click="svgClickHandler" xmlns="http://www.w3.org/2000/svg">
+    <svg id="treeChart" version="1.1" @click="svgClickHandler" xmlns="http://www.w3.org/2000/svg" @mouseover="svgOverHandler" @mouseout="svgOutHandler">
       <defs>
       <marker id="arrow"
               markerUnits="strokeWidth"
@@ -16,10 +16,10 @@
       </defs>
       <g transform="translate(0,0)" v-for="(item, index) in trees"  v-bind:transform="'translate(0,' + (index*200) + ')'">
         <g  v-for="(child, childindex) in item"  v-bind:transform="'translate(' + child.x + ',0)'">
-          <rect width="200" height="30" v-bind:data-index="index"  v-bind:data-id="child.id"  stroke="#324157" stroke-width="1" v-bind:fill="'' + (child.checked ? '#324157' : '#ffffff') + ''"/>
-          <text x="100" y="20" v-bind:data-index="index"  v-bind:data-id="child.id" text-anchor="middle" v-html="child.value" v-bind:fill="'' + (child.checked ? '#ffffff  ' : '#324157') + ''"></text>
+          <rect width="200" height="30" data-type="check" v-bind:data-index="index" v-bind:data-childindex="childindex"  v-bind:data-id="child.id"  stroke="#324157" stroke-width="1" v-bind:fill="'' + (child.checked ? '#324157' : '#ffffff') + ''"/>
+          <text x="100" y="20" data-type="check" v-bind:data-index="index" v-bind:data-childindex="childindex"  v-bind:data-id="child.id" text-anchor="middle" v-html="child.valueOmit" v-bind:fill="'' + (child.checked ? '#ffffff  ' : '#324157') + ''"></text>
 
-          <g v-if="child.childs && child.childs.length > 0 " transform="translate(175,0)">
+          <g v-if="child.hasChilds " transform="translate(175,0)">
             <g v-if="child.childshow">
               <rect width="20" height="20" data-type="minus" v-bind:data-index="index"  v-bind:data-childindex="childindex"  v-bind:data-id="child.id" x="0" y="5" v-bind:fill="'' + (child.checked ? '#324157  ' : '#ffffff') + ''"/>
               <line data-type="minus" v-bind:data-index="index"  v-bind:data-childindex="childindex"  v-bind:data-id="child.id" v-bind:x1="0" v-bind:y1="15" v-bind:x2="20" v-bind:y2="15" v-bind:stroke="'' + (child.checked ? '#ffffff' : '#324157') + ''" style="stroke-width: 4px;"/>
@@ -34,12 +34,17 @@
       </g>
       <path v-for="item in lines" v-bind:d="item.dpoints"  stroke="#324157" fill="none" style="stroke-width: 2px;marker-end: url(#arrow);"></path>
       <!-- <line v-for="item in lines" v-bind:x1="item.x1" v-bind:y1="item.y1" v-bind:x2="item.x2" v-bind:y2="item.y2" style="stroke:rgb(0,0,0);stroke-width:2;marker-end: url(#markerArrow);"/> -->
+
+      <g v-if="tooltip.isShow " id="tooltip" style="pointer-events: none" v-bind:transform="'translate(' + (tooltip.x) + ',' + (tooltip.y+30) + ')'">
+        <rect x="0" y="0" v-bind:width="tooltip.w" height="30" style="fill: #4db3ff;"/>
+        <text v-bind:x="tooltip.tw" y="20" style="fill: #324157;" text-anchor="middle" v-html="tooltip.value"></text>
+      </g>
     </svg>
   </div>
 </template>
 
 <script>
-    import { fetchSubTaskList } from 'api/task';
+    import { queryJobRefer,queryJobInfo,queryReferJob } from 'api/task';
     import { parseTime, objectMerge } from 'utils';
     import TaskMenu from './taskMenu'
     //<line x1="320" y1="30" x2="110" y2="100" style="stroke:rgb(0,0,0);stroke-width:2"/>
@@ -50,120 +55,139 @@
       },
       data() {
         return {
-          count: 0,
+          tooltip:{
+            w: 200,
+            x: 0,
+            y: 0,
+            value: 0,
+            isShow: false
+          },
+          jobQuery: {
+            jobId: ''
+          },
           trees: [],
           lines: [],
           checkedIds:[],
-          treeDatas: [
-            [{
-              id: 1,
-              checked: false,
-              childs: [22,23,24],
-              childshow: true,
-              value: "1"
-            },{
-              id: 2,
-              checked: false,
-              childs: [21],
-              childshow: false,
-              value: "2"
-            },{
-              id: 3,
-              checked: false,
-              childs: [23],
-              childshow: true,
-              value: "3"
-            },{
-              id: 4,
-              checked: false,
-              value: "4"
-            }],
-            [{
-              id: 21,
-              checked: false,
-              value: "21"
-            },{
-              id: 22,
-              checked: false,
-              value: "22"
-            },{
-              id: 23,
-              checked: false,
-              childs: [31],
-              childshow: false,
-              value: "23"
-            },{
-              id: 24,
-              checked: false,
-              value: "24"
-            },{
-              id: 25,
-              checked: false,
-              childs: [32],
-              childshow: true,
-              value: "25"
-            },{
-              id: 26,
-              checked: false,
-              value: "26"
-            }],
-            [{
-              id: 31,
-              checked: false,
-              childs: [42],
-              childshow: true,
-              value: "31"
-            },{
-              id: 32,
-              checked: false,
-              childs: [41],
-              childshow: true,
-              value: "32  "
-            }],
-            [{
-              id: 41,
-              checked: false,
-              value: "41"
-            },{
-              id: 42,
-              checked: false,
-              value: "42"
-            }],
-            [{
-              id: 51,
-              checked: false,
-              value: "51"
-            },{
-              id: 52,
-              checked: false,
-              childs: [62],
-              value: "52"
-            }],
-            [{
-              id: 61,
-              checked: false,
-              value: "61"
-            },{
-              id: 62,
-              checked: false,
-              value: "62"
-            }]
-          ],
+          treeDatas: [],
           treeHides: [],
-          loading: false
+          listLoading: false
         }
       },
       created() {
-        this.getList();
+        this.jobQuery.jobId = this.$route.params.taskId
+        this.getParentList(this.jobQuery, 0);
       },
       mounted() {
-        this.treeDatasHandler();
+        // this.treeDatasHandler();
       },
       watch: {
 
       },
       methods: {
-        childsIsHide: function(items,chid,cIndex){
+        getJobInfo(query){
+          //queryJobInfo
+          this.listLoading = true;
+          queryJobInfo(query).then(response => {
+            console.log(response.data);
+            // this.beginDataFormat(response.data,1);
+            var _carrs = [];
+            _carrs.push({
+              id: "1" + response.data.jobId,
+              jobId: response.data.jobId,
+              checked: false,
+              childshow: false,
+              value: response.data.name,
+              childs:[],
+              hasChilds: !!response.data.hasChilds
+            });
+            this.treeDatas.push(_carrs);
+            this.treeDatasHandler();
+            this.listLoading = false;
+          })
+        },
+        getParentList(query,index,childindex) {
+          this.listLoading = true;
+          queryJobRefer(query.jobId).then(response => {
+            // console.log(response.data);
+            this.beginDataFormat(response.data,0);
+            console.log("query.jobId", query.jobId);
+            this.getJobInfo(query.jobId);
+            this.listLoading = false;
+          })
+        },
+        getChildList(query,index,childindex) {
+          this.listLoading = true;
+          queryReferJob(query.jobId).then(response => {
+            // console.log(response.data);
+            this.beginDataFormat(response.data,index,childindex);
+            this.listLoading = false;
+          })
+        },
+        checkRepeat(data, id){
+          let _isNoHave = true;
+          data.map(function(item,i){
+            if(item.jobId === id){
+              _isNoHave = false;
+            }
+          });
+          return _isNoHave;
+        },
+        beginDataFormat(data,index,childindex){
+          let _this = this;
+          let _isaddchild = false;
+          if(this.treeDatas.length === index){
+            _isaddchild = true;
+          }else{
+            _isaddchild = false;
+          }
+          if(_isaddchild){
+            let _carrs = [];
+            data.map(function(item,i){
+              _carrs.push({
+                id: String(index) + item.jobId,
+                jobId: item.jobId,
+                checked: false,
+                childshow: !index,
+                value: item.jobName,
+                childs: index ? [] : ["1"+_this.jobQuery.jobId],
+                hasChilds: item.hasChilds
+              });
+
+              if(typeof(childindex)!="undefined"){
+                console.log("_this.treeDatas[childindex].childs:" , _this.treeDatas[index-1][childindex] );
+                _this.treeDatas[index-1][childindex].childs.push(String(index) + item.jobId);
+              }
+            });
+            this.treeDatas.push(_carrs);
+          }else{
+            data.map(function(item,i){
+              if(_this.checkRepeat(_this.treeDatas[index], item.jobId)){
+                let _childobj = {
+                  id: String(index) + item.jobId,
+                  jobId: item.jobId,
+                  checked: false,
+                  childshow: false,
+                  value: item.jobName,
+                  childs:[],
+                  hasChilds: item.hasChilds
+                };
+                if(_this.treeDatas[index].length/2 < childindex){
+                  _this.treeDatas[index].push(_childobj);
+                }else{
+                  _this.treeDatas[index].unshift(_childobj);
+                }
+              };
+              if(typeof(childindex)!="undefined"){
+                console.log("_this.treeDatas[childindex].childs:" , _this.treeDatas[index-1][childindex] );
+                _this.treeDatas[index-1][childindex].childs.push(String(index) + item.jobId);
+              }
+            });
+          }
+          if(index != 0){
+            this.treeDatasHandler()
+          };
+        },
+        childsIsHide(items,chid,cIndex){
           let _this = this;
           let ischildshow = false;
           items.map(function(n, i){
@@ -207,6 +231,13 @@
             }
           })
         },
+        valueFormatOmit(value){
+          let _value = value;
+          if(value.length >16){
+            _value = value.substring(0,13) + "...";
+          }
+          return _value;
+        },
         treeDatasHandler(type){
           let stageWidth = 1000;
           let stageHeight = 500;
@@ -246,12 +277,13 @@
             let _total = stageWidth/n.length;
 
             n.map(function(items, j){
-                items[j] = Object.assign(items,{'x': (_total*(j+1) - _total/2) - itemWidth/2, 'y': i*200 });
+                items[j] = Object.assign(items,{'x': (_total*(j+1) - _total/2) - itemWidth/2, 'y': i*200, valueOmit: _this.valueFormatOmit(items.value) });
             });
           });
           _this.trees = rederTrees;
           // return;
           let _rederTrees = [].concat.apply([],rederTrees);
+
           _rederTrees.map(function(n,i){
             if(n.childs && n.childs.length > 0 && n.childshow){
               n.childs.map(function(childid,j){
@@ -277,16 +309,17 @@
           let _target = e.target;
           let _this = this;
           let _type = _target.dataset["type"];
-          let _index = _target.dataset["index"];
-          let _childindex = _target.dataset["childindex"];
-          let _id = parseInt(_target.dataset["id"],10);
-          if(typeof(_type)=="undefined" && typeof(_index)!="undefined" && typeof(_id)!="undefined"){
+          let _index = parseInt(_target.dataset["index"]);
+          let _childindex = parseInt(_target.dataset["childindex"]);
+          let _id = _target.dataset["id"];
+
+          if(typeof(_type)!==undefined && _type==="check"){
             this.trees[_index].map(function(items, i){
               if(items.id === _id){
                 items.checked = !items.checked;
                 if(items.checked){
                   if(_this.checkedIds.indexOf(items.id)<=-1){
-                    _this.checkedIds.push(items.id);
+                    _this.checkedIds.push(items.jobId);
                   }
                 }else{
                   let _idindex = _this.checkedIds.indexOf(items.id);
@@ -297,44 +330,62 @@
                 return false;
               }
             });
+            return;
           }
-          if(typeof(_type)!="undefined" && typeof(_index)!="undefined" && typeof(_id)!="undefined" && typeof(_childindex)!="undefined"){
-            let _childs = [], _isshow = false;
+          if(typeof(_type)!==undefined){
+            let _childs, _isshow = false, _jobId;
             this.treeDatas[_index].map(function(item,index){
               if(item.id == _id){
                 item.childshow = !item.childshow;
                 _isshow = item.childshow;
                 _childs = item.childs;
+                _jobId = item.jobId;
               }
             });
             this.treeHides = [];
+            if(_isshow){
+              if( _childs && _childs.length > 0){
+                this.treeDatasHandler();
+              }else{
+                this.getChildList({jobId: _jobId}, _index+1, _childindex);
+              }
+            }else{
+              this.treeDatasHandler();
+            }
+          }
+        },
+        svgOverHandler(e){
+          let _target = e.target;
+          let _this = this;
+          let _type = _target.dataset["type"];
+          let _index = parseInt(_target.dataset["index"]);
+          let _childindex = parseInt(_target.dataset["childindex"]);
+          let _id = _target.dataset["id"];
 
-            // let _haverepeat = [];
-            // this.treeDatas[_index].map(function(item,index){
-            //   if(item.childs && item.childs.length > 0){
-            //     if(_isshow){
-            //       _childs.map(function(childid,j){
-            //         // console.log(item.childs.indexOf(childid) > -1 , _childs, childid);
-            //         if(item.childs.indexOf(childid) > -1){
-            //           item.childshow = true;
-            //           _haverepeat.push(childid);
-            //         }else{
-            //           if(_haverepeat.indexOf(childid) > -1){
-            //             item.childshow = true;
-            //           }
-            //         }
-            //       });
-            //     }else{
-            //       _childs.map(function(childid,j){
-            //         if(item.childs.indexOf(childid) > -1){
-            //           item.childshow = false;
-            //         }
-            //       });
-            //     }
-            //   }
-            // });
+          if(typeof(_type)!==undefined && _type==="check"){
+            let _maxitems = this.trees[_index].length;
+            _this.tooltip.isShow = true;
+            _this.tooltip.value = this.trees[_index][_childindex].value;
+            _this.tooltip.w = _this.tooltip.value.length *13 < 200 ? 200 : _this.tooltip.value.length *13;
+            _this.tooltip.tw = _this.tooltip.w/2;
+            _this.tooltip.x = _maxitems === _childindex + 1 ? this.trees[_index][_childindex].x - (_this.tooltip.w-200) : this.trees[_index][_childindex].x;
+            _this.tooltip.y = this.trees[_index][_childindex].y;
 
-            this.treeDatasHandler();
+            return;
+          }
+        },
+        svgOutHandler(e){
+          let _target = e.target;
+          let _this = this;
+          let _type = _target.dataset["type"];
+          let _index = parseInt(_target.dataset["index"]);
+          let _childindex = parseInt(_target.dataset["childindex"]);
+          let _id = _target.dataset["id"];
+
+          if(typeof(_type)!==undefined && _type==="check"){
+            console.log("svgOutHandler");
+            _this.tooltip.isShow = false;
+            return;
           }
         }
       }
@@ -343,8 +394,9 @@
 
 <style lang="scss">
   @import "src/styles/mixin.scss";
-  .app-container{
+  .treeview-container{
     // padding: 0 0;
+    overflow-x: scroll;
   }
   .tree-column{
     @include flex;
