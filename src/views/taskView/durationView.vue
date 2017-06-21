@@ -232,7 +232,7 @@
       },
       
       created() {
-        this.wfJobName = this.$route.params.taskId
+        this.wfJobName = this.$route.params.wfId
         this.listQuery.wfJobName = this.wfJobName
         this.getList();
         
