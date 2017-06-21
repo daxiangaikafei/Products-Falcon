@@ -36,8 +36,17 @@
       getLog() {
         this.listLoading = true;
         fetchLog(this.listQuery).then(response => {
-          this.log = response.data;
-          this.listLoading = false;
+          if (response.success) {
+            this.log = response.data;
+            this.listLoading = false;
+          } else {
+            this.$notify({
+              title: '失败',
+              message: response.message,
+              type: 'error',
+              duration: 2000
+            })
+            }
         })
       },
       back() {
