@@ -60,7 +60,7 @@
     import { queryJobRefer,queryJobInfo,queryReferJob } from 'api/task';
     import { parseTime, objectMerge } from 'utils';
     import TaskMenu from './taskMenu';
-    import router from 'router';
+
     //<line x1="320" y1="30" x2="110" y2="100" style="stroke:rgb(0,0,0);stroke-width:2"/>
     export default {
       name: 'treeView',
@@ -93,7 +93,7 @@
         }
       },
       created() {
-        this.jobQuery.jobId = this.$route.params.taskId
+        this.jobQuery.jobId = this.$route.params.taskId;
         this.getParentList(this.jobQuery, 0);
       },
       mounted() {
@@ -380,7 +380,7 @@
                     }
                   }
                 }else{
-                  // router.replace({path: "/view/treeView/"+items.jobId});
+                  // _this.$router.replace({path: "/view/treeView/"+items.jobId});
                   window.open("/#/view/treeView/"+items.jobId+"/0");
                 }
                 return false;
