@@ -82,9 +82,9 @@
     <el-form-item label="运行时间点">
         <el-time-picker type="fixed-time" placeholder="选择时间" v-model="form.startTime" format="HH:mm" style="width: 50%;" @change="timeHandler('startTime')"></el-time-picker>
     </el-form-item>
-    <el-form-item label="首次运行日期">
+    <!--<el-form-item label="首次运行日期">
         <el-date-picker type="date" placeholder="选择日期" v-model="form.startDate" style="width: 50%;" @change="timeHandler('startDate')"></el-date-picker>
-    </el-form-item>
+    </el-form-item>-->
     <el-form-item>
       <el-button type="success" @click="onSave" >保存</el-button>
       <el-button type="primary" @click="onSubmit">提交</el-button>
@@ -224,7 +224,7 @@
             } else {
               this.$notify({
                 title: '失败',
-                message: '保存失败',
+                message: response.message,
                 type: 'error',
                 duration: 2000
               });
@@ -245,7 +245,7 @@
             } else {
               this.$notify({
                 title: '失败',
-                message: '保存失败',
+                message: response.message,
                 type: 'error',
                 duration: 2000
               });
@@ -283,6 +283,13 @@
               this.ownerProjectOptions = this.states.filter(item => {
                 return item.label.toLowerCase()
                   .indexOf(query.toLowerCase()) > -1;
+              })
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
               })
             }
           })

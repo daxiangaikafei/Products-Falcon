@@ -1,11 +1,11 @@
 <template>
   <el-button-group>
-    <el-button size="small" :type="getActive('Tree')" @click="link({name:'Tree',params: {taskId: id}})">
+    <el-button size="small" :type="getActive('Tree')" @click="link({name:'Tree',params: {taskId: id, wfId}})">
       <!--<Icon icon-name="share" :size="12" />-->
       树形血缘图
     </el-button>
-    <el-button size="small" :type="getActive('Dutration')" @click="link({name:'Dutration',params: {taskId: id}})">调度执行时间</el-button>
-    <el-button size="small" :type="getActive('Log')" @click="link({name:'Log',params: {taskId: id}})">执行日志</el-button>
+    <el-button size="small" :type="getActive('Dutration')" @click="link({name:'Dutration',params: {taskId: id, wfId}})">调度执行时间</el-button>
+    <el-button size="small" :type="getActive('Log')" @click="link({name:'Log',params: {taskId: id, wfId}})">执行日志</el-button>
   </el-button-group>
 </template>
 <script>
@@ -18,6 +18,7 @@
     },
     created() {
       this.id = this.$route.params.taskId
+      this.wfId = this.$route.params.wfId
     },
     methods: {
       link(to) {

@@ -1,9 +1,6 @@
 <template>
   <div class="app-container treeview-container">
     <TaskMenu />
-    <div class="tree-chart-menu">
-      
-    </div>
     <svg id="treeChart" version="1.1" @click="svgClickHandler" xmlns="http://www.w3.org/2000/svg" @mouseover="svgOverHandler" @mouseout="svgOutHandler">
       <defs>
       <marker id="arrow"
@@ -50,7 +47,6 @@
     import { queryJobRefer,queryJobInfo,queryReferJob } from 'api/task';
     import { parseTime, objectMerge } from 'utils';
     import TaskMenu from './taskMenu'
-    import router from 'router';
     //<line x1="320" y1="30" x2="110" y2="100" style="stroke:rgb(0,0,0);stroke-width:2"/>
     export default {
       name: 'treeView',
@@ -59,7 +55,6 @@
       },
       data() {
         return {
-          value: 'SOR',
           tooltip:{
             w: 200,
             x: 0,
@@ -93,39 +88,66 @@
           //queryJobInfo
           this.listLoading = true;
           queryJobInfo(query).then(response => {
-            console.log(response.data);
-            // this.beginDataFormat(response.data,1);
-            var _carrs = [];
-            _carrs.push({
-              id: "1" + response.data.jobId,
-              jobId: response.data.jobId,
-              checked: true,
-              childshow: false,
-              value: response.data.name,
-              childs:[],
-              hasChilds: !!response.data.hasChilds
-            });
-            this.treeDatas.push(_carrs);
-            this.treeDatasHandler();
-            this.listLoading = false;
+            if (response.success) {
+              console.log(response.data);
+              // this.beginDataFormat(response.data,1);
+              var _carrs = [];
+              _carrs.push({
+                id: "1" + response.data.jobId,
+                jobId: response.data.jobId,
+                checked: false,
+                childshow: false,
+                value: response.data.name,
+                childs:[],
+                hasChilds: !!response.data.hasChilds
+              });
+              this.treeDatas.push(_carrs);
+              this.treeDatasHandler();
+              this.listLoading = false;
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
           })
         },
         getParentList(query,index,childindex) {
           this.listLoading = true;
           queryJobRefer(query.jobId).then(response => {
-            // console.log(response.data);
-            this.beginDataFormat(response.data,0);
-            console.log("query.jobId", query.jobId);
-            this.getJobInfo(query.jobId);
-            this.listLoading = false;
+            if (response.success) {
+              // console.log(response.data);
+              this.beginDataFormat(response.data,0);
+              console.log("query.jobId", query.jobId);
+              this.getJobInfo(query.jobId);
+              this.listLoading = false;
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
           })
         },
         getChildList(query,index,childindex) {
           this.listLoading = true;
           queryReferJob(query.jobId).then(response => {
+            if (response.success) {
             // console.log(response.data);
             this.beginDataFormat(response.data,index,childindex);
             this.listLoading = false;
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
           })
         },
         checkRepeat(data, id){
@@ -321,21 +343,17 @@
           if(typeof(_type)!==undefined && _type==="check"){
             this.trees[_index].map(function(items, i){
               if(items.id === _id){
-                if(!items.checked){
-                  console.log(router);
-                  router.push({path: "/view/treeView/"+items.jobId});
+                items.checked = !items.checked;
+                if(items.checked){
+                  if(_this.checkedIds.indexOf(items.id)<=-1){
+                    _this.checkedIds.push(items.jobId);
+                  }
+                }else{
+                  let _idindex = _this.checkedIds.indexOf(items.id);
+                  if(_idindex > -1){
+                    _this.checkedIds.splice(_idindex,1);
+                  }
                 }
-                // items.checked = !items.checked;
-                // if(items.checked){
-                //   if(_this.checkedIds.indexOf(items.id)<=-1){
-                //     _this.checkedIds.push(items.jobId);
-                //   }
-                // }else{
-                //   let _idindex = _this.checkedIds.indexOf(items.id);
-                //   if(_idindex > -1){
-                //     _this.checkedIds.splice(_idindex,1);
-                //   }
-                // }
                 return false;
               }
             });
@@ -406,12 +424,6 @@
   .treeview-container{
     // padding: 0 0;
     overflow-x: scroll;
-    position: relative;
-  }
-  .tree-chart-menu{
-    position: absolute;
-    top: 0;
-    right: 0;
   }
   .tree-column{
     @include flex;

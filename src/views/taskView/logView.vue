@@ -1,7 +1,7 @@
 <template>
   <div class="log-container" :style="{height:cHeight+'px'}">
     <TaskMenu></TaskMenu>
-    <div class="title">当前执行日志：P_SEITL_TASK_KGN_G</div>
+    <div class="title">当前执行日志：{{listQuery.wfJobName}}</div>
      <div class="log">
        {{log.content}}
     </div>
@@ -28,7 +28,7 @@
     created() {
       this.getLog()
       this.cHeight = window.innerHeight - 100
-      this.listQuery.wfJobName = this.$route.params.taskId      
+      this.listQuery.wfJobName = this.$route.params.wfId      
     },
     mounted() {
     },
@@ -36,8 +36,17 @@
       getLog() {
         this.listLoading = true;
         fetchLog(this.listQuery).then(response => {
-          this.log = response.data;
-          this.listLoading = false;
+          if (response.success) {
+            this.log = response.data;
+            this.listLoading = false;
+          } else {
+            this.$notify({
+              title: '失败',
+              message: response.message,
+              type: 'error',
+              duration: 2000
+            })
+            }
         })
       },
       back() {
