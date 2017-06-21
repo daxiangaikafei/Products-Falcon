@@ -1,7 +1,7 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="Job_name、提交人" v-model="listQuery.searchStr">
+      <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="Job名称、提交人" v-model="listQuery.keyword">
       </el-input> 
       <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.userName"> 
       </el-input>-->
@@ -25,7 +25,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="240px" label="Job_name" sortable prop="wfJobName" sortable>
+      <el-table-column min-width="240px" label="Job名称" sortable prop="wfJobName" sortable>
         <template scope="scope">
           <router-link class="link" :to="{name:'Tree',params: {taskId: scope.row.wfJobName}}">
             {{scope.row.wfJobName}}
@@ -186,16 +186,25 @@
         getList() {
           this.listLoading = true;
           queryWfJobsList(this.listQuery).then(response => {
-            this.list = response.data.rows;
-            this.total = response.data.total;
-            this.listLoading = false;
+            if (response.success) {
+              this.list = response.data.rows;
+              this.total = response.data.total;
+              this.listLoading = false;
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
           })
         },
         handleFilter() {
           this.getList();
         },
         clearFilter() {
-          this.listQuery.searchStr = ''
+          this.listQuery.keyword = ''
           this.getList();
         },
         handleSizeChange(val) {
