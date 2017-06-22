@@ -1,7 +1,7 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="Job_name、提交人" v-model="listQuery.keyword">
+      <el-input @keyup.enter.native="handleFilter" style="width: 260px;" class="filter-item" placeholder="Job名称、提交人" v-model="listQuery.keyword">
       </el-input> 
       <!--<el-input @keyup.enter.native="handleFilter" style="width: 120px;" class="filter-item" placeholder="提交人" v-model="listQuery.userName"> 
       </el-input>-->
@@ -17,7 +17,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="200px" label="Job_name" sortable prop="name">
+      <el-table-column min-width="200px" label="Job名称" sortable prop="name">
         <template scope="scope">
           <!--<span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.title}}</span>-->
           <a href='#' >{{scope.row.name}}</a>
@@ -36,9 +36,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="130px" label="所属组名" sortable prop="ownerProjectName">
+      <el-table-column min-width="130px" label="所属组名" sortable prop="ownerProject">
         <template scope="scope">
-          <span>{{scope.row.ownerProjectName}}</span>          
+          <span>{{scope.row.ownerProject}}</span>          
         </template>
       </el-table-column>
 
@@ -56,12 +56,12 @@
 
       <el-table-column width="200px" align="center" label="更新时间" prop="updateTime" sortable>
         <template scope="scope">
-          <span>{{scope.row.updateTime | parseTime}}</span>
+          <span>{{scope.row.updateTime}}</span>
         </template>
       </el-table-column>
 
       <el-table-column class-name="status-col" label="Status" width="110" sortable prop="status"
-        :filters="[{ text: 'Success', value: 0 }, { text: 'Falled', value: 1 }, { text: 'Running', value: 2 }, { text: 'Waiting', value: 3 }]" 
+        :filters="[{ text: 'Success', value: 0 }, { text: 'Killed', value: 1 }, { text: 'Running', value: 2 }]" 
         :filter-method="showStatusFilter"
         filter-placement="bottom-end">
         <template scope="scope">
@@ -92,20 +92,20 @@
       </el-pagination>
     </div>
 
-    <el-dialog :title="textMap[dialogStatus]" v-model="editorDialogVisable">
+    <el-dialog title="编辑" v-model="editorDialogVisable">
       <div class="form-container">
           <el-form ref="form" :model="form" label-width="110px" class="form">
           <el-form-item label="任务名称">
             <el-input v-model="form.name"></el-input>
           </el-form-item>
           <el-form-item label="任务脚本名">
-            <el-input v-model="form.scriptName"></el-input>
+            <el-input v-model="form.shellName"></el-input>
           </el-form-item>
           <el-form-item label="操作人">
             <el-input v-model="form.userName"></el-input>
           </el-form-item>
           <el-form-item label="数据库仓库层级">
-            <el-select v-model="form.db" placeholder="请选择">
+            <el-select v-model="form.dataLevel" placeholder="请选择">
               <el-option label="SSA" value="SSA"></el-option>
               <el-option label="SOR" value="SOR"></el-option>
               <el-option label="DPA" value="DPA"></el-option>
@@ -114,45 +114,64 @@
           </el-form-item>
           <el-form-item label="依赖任务">
             <el-select
-                v-model="form.depend"
-                multiple
-                filterable
-                remote
-                placeholder="查询并选择依赖"
-                :remote-method="getDepend"
-                :loading="loading"
-                style="width:100%">
+                  v-model="referIdsValue"
+                  multiple
+                  filterable
+                  remote
+                  @change="handleReferIds"
+                  placeholder="查询并选择依赖"
+                  :remote-method="getReferIds"
+                  :loading="loading"
+                  style="width:100%">
                 <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
+                  v-for="item in referIdsOptions"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
                 </el-option>
-              </el-select>
-          </el-form-item>
-          <el-form-item label="所属组">
-            <el-input v-model="form.ownerProjectName"></el-input>
-          </el-form-item>
-          <el-form-item label="运行周期">
-            <el-select v-model="form.cycle" placeholder="请选择">
-              <el-option label="每日" value="daily"></el-option>
-              <el-option label="每周" value="weekly"></el-option>
-              <el-option label="每月" value="monthly"></el-option>
-              <el-option label="每年" value="yearly"></el-option>
-              <el-option label="每小时" value="hourly"></el-option>
             </el-select>
           </el-form-item>
+          <el-form-item label="所属组">
+            <el-select
+              v-model="ownerProjectValue"
+              :multiple="false"
+              clearable
+              filterable
+              remote
+              placeholder="查询并选择任务组"
+              :remote-method="getOwnerProjects"
+              :loading="loading"
+              style="width:100%">
+              <el-option
+                v-for="item in ownerProjectsOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="运行周期">
+            <el-cascader 
+              change-on-select 
+              clearable
+              @change="handleCycle"
+              :options="cycleOption" 
+              v-model="cycleValue" 
+              popper-class="refer-pop"
+              placeholder="请选择">
+            </el-cascader>
+          </el-form-item>
           <el-form-item label="运行时间点">
-              <el-time-picker type="fixed-time" placeholder="选择时间" v-model="form.startTime" format="HH:mm" style="width: 50%;" @change="timeHandler('startTime')"></el-time-picker>
+            <el-time-picker type="fixed-time" placeholder="选择时间" v-model="startTimeValue" format="HH:mm" style="width: 50%;"></el-time-picker>
           </el-form-item>
-          <el-form-item label="首次运行日期">
+          <!--<el-form-item label="首次运行日期">
               <el-date-picker type="date" placeholder="选择日期" v-model="form.startDate" style="width: 50%;" @change="timeHandler('startDate')"></el-date-picker>
-          </el-form-item>
+          </el-form-item>-->
           <el-form-item>
             <el-button type="success" @click="update">保存</el-button>
             <el-button type="primary" @click="commit">提交</el-button>
             <el-button type="warning" @click="reset">重置</el-button>
-            <el-button @click="editorDialogVisable = false">取消</el-button>
+            <el-button @click="editorDialogVisable = false">关闭</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -162,7 +181,7 @@
 </template>
 
 <script>
-  import { fetchList, stop, saveOrUpdate, queryJobInfo } from 'api/task';
+  import { fetchList, run, stop, saveOrUpdate, queryJobInfo } from 'api/task';
   import { fetchList as fetchGroupList } from 'api/group';
   import { parseTime, objectMerge, timeToStamp } from 'utils';
 
@@ -179,49 +198,117 @@
           keyword: ''
         },
         temp: {
-          id: undefined,
+          jobId: undefined,
           name: '',
           shellName: '',
-          ownerProjectId: 0,
-          ownerProject: '',
-          dataLevel: 'SSA',
-          cycle: '',
-          referIds: [],
+          ownerProject: {},
+          dataLevel: '',
+          cycle: 0,
+          referIds: '',
           startTime: '',
-          startDate: '',
-          endDate: '',
-          updateTime: '',   
-          status: 0,
-          userName: '' 
+          field1: '',
+          field2: ''
         },
         dialogStatus: '',
-        textMap: {
-          update: '编辑',
-          create: '创建'
-        },
         dialogPvVisible: false,
         editorDialogVisable: false,
         tableKey: 0,
         form: {
-          id: undefined,
+          jobId: undefined,
           name: '',
           shellName: '',
-          ownerProjectId: 0,
-          ownerProject: '',
-          dataLevel: 'SSA',
-          cycle: 'daily',
-          depend: [],
+          ownerProject: {},
+          dataLevel: '',
+          cycle: 0,
+          referIds: '',
           startTime: '',
-          startDate: '',
-          endDate: '',
-          updateTime: '',   
-          status: 'Waiting',
-          userName: ''                     
+          field1: '',
+          field2: ''                     
         },
         loading: false,
         referIdsOptions: [],
+        referIdsValue: [],
         ownerProjectsOptions: [],
-        states: []
+        states: [],
+        ownerProjectValue: [],
+        startTimeValue: '',
+        cycleValue: [],
+        cycleOption: [
+          {
+            value: 3,
+            label: '每日'
+          },
+          {
+            value: 4,
+            label: '每周'
+          },
+          {
+            value: 5,
+            label: '每月',
+            children: (() => {
+              let list = []
+              for(let h = 1; h <= 31; h++) {
+                list.push({
+                  value: h,
+                  label: `${h}日`
+                })
+              }
+              return list
+            })()
+          },
+          {
+            value: 6,
+            label: '每年',
+            children: (() => {
+              let list = []
+              for(let h = 1; h <= 12; h++) {
+                list.push({
+                  value: h,
+                  label: `${h}月`,
+                  children: (() => {
+                    let list = []
+                    for(let h = 1; h <= 31; h++) {
+                      list.push({
+                        value: h,
+                        label: `${h}日`
+                      })
+                    }
+                    return list
+                  })()
+                })
+              }
+              return list
+            })()
+          },
+          {
+            value: 2,
+            label: '小时',
+            children: (() => {
+              let list = []
+              for(let h = 1; h < 24; h++) {
+                list.push({
+                  value: h,
+                  label: `每${h}小时`
+                })
+              }
+              return list
+            })()
+          },
+          {
+            value: 1,
+            label: '分钟',
+            children: (() => {
+              let list = []
+              for(let h = 1; h < 60; h++) {
+                list.push({
+                  value: h,
+                  label: `每${h}分钟`
+                })
+              }
+              return list
+            })()
+          },
+        ]
       }
     },
     
@@ -229,26 +316,21 @@
       this.getList();
     },
     mounted() {
-      this.form.dependList = this.states.map(item => {
-        return { value: item, label: item };
-      });
     },
     filters: {
       statusFilter(status) {
         const statusMap = [
           'success',
           'primary',
-          'danger',
-          'warning'
+          'danger'
         ];
         return statusMap[status]
       },
       statusTextFilter(status) {
         const statusMap = [
           'Success',
-          'Falled',
-          'Running',
-          'Waiting'
+          'Killed',
+          'Running'
         ];
         return statusMap[status]
       },
@@ -261,9 +343,18 @@
       getList() {
         this.listLoading = true;
         fetchList(this.listQuery).then(response => {
-          this.list = response.data.rows;
-          this.total = response.data.total;
-          this.listLoading = false;
+          if (response.success) {
+            this.list = response.data.rows;
+            this.total = response.data.total;
+            this.listLoading = false;
+          } else {
+            this.$notify({
+              title: '失败',
+              message: response.message,
+              type: 'error',
+              duration: 2000
+            })
+            }
         })
       },
       getReferIds(query) {
@@ -273,11 +364,19 @@
             this.loading = false;
             if(response.success && response.data.rows) {
               this.states = response.data.rows.map(item => {
-                return { value: item.id, label: item.name };
+                return { id: item.id, name: item.name };
               })
               this.referIdsOptions = this.states.filter(item => {
-                return item.label.toLowerCase()
+                return item.name.toLowerCase()
                   .indexOf(query.toLowerCase()) > -1;
+              })
+              this.states = []
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
               })
             }
           })
@@ -292,11 +391,19 @@
             this.loading = false;
             if(response.success && response.data.rows) {
               this.states = response.data.rows.map(item => {
-                return { value: item.id, label: item.name };
+                return { id: item.id, name: item.name };
               })
               this.ownerProjectsOptions = this.states.filter(item => {
-                return item.label.toLowerCase()
+                return item.name.toLowerCase()
                   .indexOf(query.toLowerCase()) > -1;
+              })
+              this.states = []              
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
               })
             }
           })
@@ -340,7 +447,7 @@
             row.status = status;
           } else {
             this.$message({
-              message: '操作失败',
+              message: response.message,
               type: 'error'
             })
           }
@@ -349,22 +456,37 @@
       },
       handleUpdate(row) {
         queryJobInfo(row.id).then(response => {
-          objectMerge(this.form, response.data)
-          objectMerge(this.temp, this.form)
-          this.dialogStatus = 'update';
-          this.editorDialogVisable = true;
+          if (response.success) {
+            objectMerge(this.form, response.data)
+            objectMerge(this.temp, this.form)
+            this.ownerProjectsOptions.push(this.form.ownerProject)
+            this.ownerProjectValue = this.form.ownerProject.id
+            this.cycleValue = [this.form.cycle,+this.form.field1,+this.form.field2]
+            this.referIdsOptions = this.form.referIds
+            this.referIdsValue = this.form.referIds.map(item => item.id)
+            this.startTimeValue = +new Date('1 '+this.form.startTime)
+
+            this.dialogStatus = 'update';
+            this.editorDialogVisable = true;
+          } else {
+            this.$notify({
+              title: '失败',
+              message: response.message,
+              type: 'error',
+              duration: 2000
+            });
+          }
         })   
       },
       update() {
-        this.form.referIds = this.form.referIds.join()
-        this.form.updateTime = parseTime(new Date())
-        for (let v of this.list) {
-          if (v.id === this.form.id) {
-            objectMerge(v, this.form)
-            break
-          }
-        }
-        this.editorDialogVisable = false;
+        this.form.ownerProject = this.ownerProjectValue
+        this.form.startTime = parseTime(this.startTimeValue, '{h}:{i}')
+        // for (let v of this.list) {
+        //   if (v.id === this.form.id) {
+        //     objectMerge(v, this.form)
+        //     break
+        //   }
+        // }
         saveOrUpdate(this.form).then(response => {
           if (response.success) {
             this.$notify({
@@ -373,10 +495,12 @@
               type: 'success',
               duration: 2000
             });
+            // this.editorDialogVisable = false
+            this.getList()
           } else {
             this.$notify({
               title: '失败',
-              message: '保存失败',
+              message: response.message,
               type: 'error',
               duration: 2000
             });
@@ -385,7 +509,7 @@
       },
       commit() {
         this.editorDialogVisable = false;
-        saveOrUpdate(this.form).then(response => {
+        run(this.form.jobId).then(response => {
           if (response.success) {
             this.$notify({
               title: '成功',
@@ -393,10 +517,11 @@
               type: 'success',
               duration: 2000
             });
+            this.getList()            
           } else {
             this.$notify({
               title: '失败',
-              message: '提交失败',
+              message: response.message,
               type: 'error',
               duration: 2000
             });
@@ -408,6 +533,14 @@
       },
       showStatusFilter(value, row) {
         return row.status === value
+      },
+      handleCycle() {
+        this.form.cycle = this.cycleValue[0]
+        this.form.field1 = this.cycleValue[1]
+        this.form.field2 = this.cycleValue[2]
+      },
+      handleReferIds() {
+        this.form.referIds = this.referIdsValue.join()
       },
       timeHandler(key) {
         timeToStamp(key, this.form)
