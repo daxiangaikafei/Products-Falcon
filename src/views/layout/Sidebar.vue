@@ -4,10 +4,10 @@
         <div class="logo-container">
             <span class="logo">Falcon猎鹰系统</span>
         </div>
-        <template v-for="item in permissionRoutes" v-if="!item.hidden">
+        <template v-for="item in permissionRoutes" v-if="!item.hidden" :key="item.name">
             <el-submenu :index="item.name" v-if="!item.noDropdown">
                 <template slot="title">
-                    <Icon :icon-name="item.icon" :size="14"/>{{item.name}}
+                    <Icon :icon-name="item.icon" :size="14"></Icon> {{item.name}}
                 </template>
                 <router-link v-for="child in item.children" :key="child.path" v-if="!child.hidden" class="title-link" :to="item.path+'/'+child.path">
                     <el-menu-item :index="item.path+'/'+child.path">
@@ -17,7 +17,7 @@
             </el-submenu>
             <router-link v-if="item.noDropdown&&item.children.length>0"  :to="item.path+'/'+item.children[0].path">
                 <el-menu-item :index="item.path+'/'+item.children[0].path">
-                    <Icon :icon-name="item.icon" :size="14"/>{{item.children[0].name}}
+                    <Icon :icon-name="item.icon" :size="14"></Icon>{{item.children[0].name}}
                 </el-menu-item>
             </router-link>
         </template>

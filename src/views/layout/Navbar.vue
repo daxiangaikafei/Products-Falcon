@@ -8,18 +8,18 @@
                     <ErrLog v-if="log.length>0" class="errLog-container" :logsList="log"></ErrLog>
                     <div class="avatar-container" trigger="click">
                             <div class="help">
-                                <Icon :icon-name="'alert-circle'" />
+                                <Icon :icon-name="'alert-circle'" ></Icon>
                                 帮助
                             </div>
                             <span class="line"></span>
                             <div class="avatar-wrapper">
                                 <img v-if="avatar" class="user-avatar" :src="avatar">
-                                <Icon v-if="!avatar" icon-name="user" color="#fbfdff" :size="16"  />
+                                <Icon v-if="!avatar" icon-name="user" color="#fbfdff" :size="16"  ></Icon>
                                 用户账号：{{name}} [{{introduction}}]
                             </div>
                             <span class="line"></span>                            
                             <div class="exit" @click="logout">
-                                <Icon :icon-name="'exit'" />
+                                <Icon :icon-name="'exit'" ></Icon>
                                 退出
                             </div>
                             <!--<el-dropdown-item divided><span @click="logout" style="display:block;">退出登录</span></el-dropdown-item>-->

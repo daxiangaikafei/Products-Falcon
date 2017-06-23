@@ -1,8 +1,8 @@
 <template>
   <div class="app-container calendar-list-container">
-    <TaskMenu />
+    <TaskMenu ></TaskMenu>
       <div class='chart-container'>
-        <durationLine height='100%' width='100%' :options="chartOptions" />
+        <durationLine height='100%' width='100%' :options="chartOptions" ></durationLine>
       </div>
     <el-table 
       ref="listTable"

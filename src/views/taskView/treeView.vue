@@ -1,6 +1,6 @@
 <template>
   <div class="app-container treeview-container">
-    <TaskMenu />
+    <TaskMenu ></TaskMenu>
     <div class="treeview-nav">
       <p class="treeview-nav-jobName">
         当前查看的任务: <span v-html="navinfo.jobName"></span>

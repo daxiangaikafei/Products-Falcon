@@ -1,7 +1,7 @@
 <template>
   <div class="components-container" style='height:100vh'>
     <div class='chart-container'>
-       <lineMarker height='100%' width='100%' />
+       <lineMarker height='100%' width='100%' ></lineMarker>
     </div>
 
   </div>

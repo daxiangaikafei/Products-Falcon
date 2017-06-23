@@ -1,7 +1,6 @@
 <template>
   <el-button-group>
     <el-button size="small" :type="getActive('Tree')" @click="link({name:'Tree',params: {taskId: id, wfId}})">
-      <!--<Icon icon-name="share" :size="12" />-->
       树形血缘图
     </el-button>
     <el-button v-if="wfId!=0" size="small" :type="getActive('Dutration')" @click="link({name:'Dutration',params: {taskId: id, wfId}})">调度执行时间</el-button>

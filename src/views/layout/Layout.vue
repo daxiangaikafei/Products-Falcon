@@ -1,11 +1,11 @@
 <template>
     <div class="app-wrapper" :class="{hideSidebar:!sidebar.opened}">
         <div class="sidebar-wrapper">
-            <Sidebar class="sidebar-container"/>
+            <Sidebar class="sidebar-container"></Sidebar>
         </div>
         <div class="main-container">
-            <Navbar/>
-            <App-main/>
+            <Navbar></Navbar>
+            <App-main></App-main>
         </div>
     </div>
 </template>

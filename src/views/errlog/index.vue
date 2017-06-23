@@ -1,7 +1,7 @@
 <template>
   <div class="errPage-container">
      <!--error code-->
-   <err-code/>
+   <err-code></err-code>
     <!--error code-->
     <h3>请点击右上角bug小图表</h3>
      <code>
