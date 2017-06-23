@@ -11,7 +11,7 @@
 
     <el-table  :key='tableKey' :data="list" :default-sort="{prop: 'id', order: 'aescending'}" v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">
 
-      <el-table-column align="center" label="Job_id" width="110" sortable prop="id">
+      <el-table-column align="center" label="Job_Id" width="110" sortable prop="id">
         <template scope="scope">
           <span>{{scope.row.id}}</span>
         </template>
@@ -24,37 +24,43 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="130px" label="调度时间点" sortable prop="startTime">
+      <el-table-column min-width="130px" align="center" label="调度时间点" sortable prop="startTime">
         <template scope="scope">
           <span>{{scope.row.startTime}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column min-width="120px" label="所属组ID" sortable prop="ownerProjectId">
+      <el-table-column min-width="90px" align="center" label="组ID" sortable prop="ownerProjectId">
         <template scope="scope">
           <span>{{scope.row.ownerProjectId}}</span>          
         </template>
       </el-table-column>
 
-      <el-table-column min-width="130px" label="所属组名" sortable prop="ownerProject">
+      <el-table-column min-width="130px" label="所属组名" show-overflow-tooltip sortable prop="ownerProjectName">
         <template scope="scope">
-          <span>{{scope.row.ownerProject}}</span>          
+          <span>{{scope.row.ownerProjectName}}</span>          
         </template>
       </el-table-column>
 
-      <el-table-column width="160px" align="center" label="调度开始日期" prop="startDate" sortable>
+      <el-table-column width="160px" align="center" show-overflow-tooltip label="调度开始日期" prop="startDate" sortable>
         <template scope="scope">
           <span>{{scope.row.startDate}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="160px" align="center" label="调度结束日期" prop="endDate" sortable>
+      <el-table-column width="150px" align="center" label="调度结束日期" prop="endDate" sortable>
         <template scope="scope">
           <span>{{scope.row.endDate}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="200px" align="center" label="更新时间" prop="updateTime" sortable>
+      <el-table-column width="170px" align="center" label="创建时间" prop="createTime" sortable>
+        <template scope="scope">
+          <span>{{scope.row.createTime}}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column width="170px" align="center" label="更新时间" prop="updateTime" sortable>
         <template scope="scope">
           <span>{{scope.row.updateTime}}</span>
         </template>
@@ -358,7 +364,7 @@
         })
       },
       getReferIds(query) {
-        if (query !== '') {
+        if (query && query !== '') {
           this.loading = true;
           fetchList({keyword:query,page:1,rows:500}).then(response => {
             this.loading = false;
@@ -385,7 +391,7 @@
         }
       },
       getOwnerProjects(query) {
-        if (query !== '') {
+        if (query && query !== '') {
           this.loading = true;
           fetchGroupList({keyword:query,page:1,rows:500}).then(response => {
             this.loading = false;
@@ -451,8 +457,7 @@
               type: 'error'
             })
           }
-        })
-        
+        })    
       },
       handleUpdate(row) {
         queryJobInfo(row.id).then(response => {
@@ -508,7 +513,6 @@
         })
       },
       commit() {
-        this.editorDialogVisable = false;
         run(this.form.jobId).then(response => {
           if (response.success) {
             this.$notify({
@@ -517,6 +521,7 @@
               type: 'success',
               duration: 2000
             });
+            this.editorDialogVisable = false;   
             this.getList()            
           } else {
             this.$notify({
