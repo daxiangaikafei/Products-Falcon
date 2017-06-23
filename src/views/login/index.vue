@@ -5,12 +5,12 @@
                  class="card-box login-form">
             <h3 class="title">FALCON猎鹰系统</h3>
             <el-form-item prop="email">
-                <span class="svg-container"><Icon :icon-name="'user'"></Icon></span>
+                <span class="svg-container"><Icon icon-name="user" :size="14"></Icon></span>
                 <el-input name="email" type="text" v-model="loginForm.email" autoComplete="on"
                           placeholder="请输入账号"></el-input>
             </el-form-item>
             <el-form-item prop="password">
-                <span class="svg-container"><Icon :icon-name="'lock'"></Icon></span>
+                <span class="svg-container"><Icon icon-name="lock"></Icon></span>
                 <el-input name="password" type="password" @keyup.enter.native="handleLogin" v-model="loginForm.password"
                           autoComplete="on" placeholder="请输入密码"></el-input>
             </el-form-item>
@@ -50,8 +50,8 @@
         };
         return {
           loginForm: {
-            email: 'admin',
-            password: '123456'
+            email: '',
+            password: ''
           },
           loginRules: {
             email: [
@@ -149,7 +149,7 @@
             width: 85%;
         }
         .svg-container {
-            padding: 6px 5px 6px 15px;
+            padding: 4px 5px 0px 15px;
             color: #889aa4;
         }
 

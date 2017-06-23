@@ -1,6 +1,6 @@
 <template>
     <div @click="toggleClick">
-        <Icon :icon-name="'menu'" :color="'#fff'" :size="24" class="ham-icon hamburger" :class="{'is-active':isActive}" ></Icon>
+        <Icon icon-name="menu" :color="'#fff'" :size="24" class="ham-icon hamburger" :class="{'is-active':isActive}" ></Icon>
     </div>
 </template>
 

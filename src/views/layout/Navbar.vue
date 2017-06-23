@@ -8,7 +8,7 @@
                     <ErrLog v-if="log.length>0" class="errLog-container" :logsList="log"></ErrLog>
                     <div class="avatar-container" trigger="click">
                             <div class="help">
-                                <Icon :icon-name="'alert-circle'" ></Icon>
+                                <Icon icon-name="alert-circle" ></Icon>
                                 帮助
                             </div>
                             <span class="line"></span>
@@ -19,7 +19,7 @@
                             </div>
                             <span class="line"></span>                            
                             <div class="exit" @click="logout">
-                                <Icon :icon-name="'exit'" ></Icon>
+                                <Icon icon-name="exit" ></Icon>
                                 退出
                             </div>
                             <!--<el-dropdown-item divided><span @click="logout" style="display:block;">退出登录</span></el-dropdown-item>-->
