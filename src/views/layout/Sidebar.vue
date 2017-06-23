@@ -4,7 +4,7 @@
         <div class="logo-container">
             <span class="logo">Falcon猎鹰系统</span>
         </div>
-        <template v-for="item in permissionRoutes" v-if="!item.hidden" :key="item.name">
+        <template v-for="(item, index) in permissionRoutes" v-if="!item.hidden">
             <el-submenu :index="item.name" v-if="!item.noDropdown">
                 <template slot="title">
                     <Icon :icon-name="item.icon" :size="14"></Icon> {{item.name}}
