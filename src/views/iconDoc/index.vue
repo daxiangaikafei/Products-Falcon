@@ -12,15 +12,6 @@
 </template>
 <script>
   let url = require('assets/iconsvg/symbol-defs.svg')
-  let icons = ''
-  getText(url).then( data => {
-    let txt = data
-    if ( !txt || txt === '') return 
-    icons = txt.match(/icon-[A-Za-z0-9-]+(?=")/gm)
-    console.log('Icons count:'+icons.length)
-  }, function (error) {
-    console.error('Error:', error)
-  })
 
   function getText(url) {
     var promise = new Promise(function (resolve, reject) {
@@ -42,14 +33,23 @@
         }
       }
     })
-
     return promise;
   };
 
   export default {
+    mounted() {
+      getText(url).then( data => {
+        let txt = data
+        if ( !txt || txt === '') return 
+        this.icons = txt.match(/icon-[A-Za-z0-9-]+(?=")/gm)
+        console.log('Icons count:'+this.icons.length)
+      }, function (error) {
+        console.error('Error:', error)
+      })
+    },
     data () {
       return {
-        icons
+        icons: ''
       }
     }
   }
