@@ -17,42 +17,40 @@
       </el-form-item>
 
       <el-form-item label="组描述">
-        <el-input type="textarea" v-model="form.descripe"></el-input>
+        <el-input type="textarea" v-model="form.describe"></el-input>
       </el-form-item>
 
       <el-form-item label="首次运行日期">
-          <el-date-picker type="date" placeholder="选择日期" v-model="form.createTime" style="width: 50%;" @change="timeHandler('createTime')"></el-date-picker>
+          <el-date-picker type="date" placeholder="选择日期" v-model="form.beginDate" style="width: 50%;" @change="timeHandler('createTime')"></el-date-picker>
       </el-form-item>
       <el-form-item label="调度结束日期">
           <el-date-picker type="date" placeholder="选择日期" v-model="form.endDate" style="width: 50%;" @change="timeHandler('endDate')"></el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="success" @click="onSave">保存</el-button>
-        <el-button type="primary" @click="onSubmit">提交</el-button>
+        <el-button type="success" @click="save">保存</el-button>
+        <el-button type="primary" @click="commit">提交</el-button>
         <el-button type="warning" native-type="reset" @click="reset">重置</el-button>
-        <el-button @click="editorDialogVisable = false">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-  import { saveOrUpdate } from 'api/group';
+  import { run, saveOrUpdate } from 'api/group';
   import { parseTime, timeToStamp } from 'utils'
 
   export default {
     data() {
       return {
         form: {
-          id: undefined,
+          projectId: undefined,
           name: '',
           userName: '',
           dataLevel: '',
-          createTime: '',
-          endDate: '',
-          descripe: '',
+          describe: '',
+          status: '',
           beginDate: '',
-          updateTime: '',
+          endDate: '', 
         },
         loading: false
       }
@@ -61,13 +59,12 @@
 
     },
     methods: {
-      onSubmit() {
-        this.form.updateTime = parseTime(new Data())
-        saveOrUpdate(this.form).then(response => {
+      commit() {
+        run(this.form.projectId).then(response => {
           if (response.success) {
               this.$notify({
                 title: '成功',
-                message: '保存成功',
+                message: '提交成功',
                 type: 'success',
                 duration: 2000
               })
@@ -83,26 +80,24 @@
             }
         })
       },
-      onSave() {
-        this.form.updateTime = parseTime(new Data())        
+      save() {
         saveOrUpdate(this.form).then(response => {
           if (response.success) {
-              this.$notify({
-                title: '成功',
-                message: '保存成功',
-                type: 'success',
-                duration: 2000
-              })
-              this.$refs.form.$el.reset()
-              this.reset()
-            } else {
-              this.$notify({
-                title: '失败',
-                message: response.message,
-                type: 'error',
-                duration: 2000
-              });
-            }
+            this.form.projectId = response.data
+            this.$notify({
+              title: '成功',
+              message: '保存成功',
+              type: 'success',
+              duration: 2000
+            })
+          } else {
+            this.$notify({
+              title: '失败',
+              message: response.message,
+              type: 'error',
+              duration: 2000
+            });
+          }
         })
       },
       reset() {
