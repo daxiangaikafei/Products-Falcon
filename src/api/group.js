@@ -20,7 +20,7 @@ export function run(projectId) {
   return fetch({
     url: '/falcon/jobproject/run.html',
     method: 'post',
-    data: projectId
+    data: {projectId}
   });
 }
 
@@ -28,7 +28,7 @@ export function stop(projectId) {
   return fetch({
     url: '/falcon/jobproject/stop.html',
     method: 'post',
-    data: projectId
+    data: {projectId}
   });
 }
 
@@ -36,7 +36,7 @@ export function queryProjectInfo(projectId) {
   return fetch({
     url: '/falcon/jobproject/queryProjectInfo.html',
     method: 'post',
-    data: projectId
+    data: {projectId}
   });
 }
 
@@ -44,6 +44,6 @@ export function deleteGroup(projectId) {
   return fetch({
     url: '/falcon/jobproject/delete.html',
     method: 'post',
-    data: projectId
+    data: {projectId}
   });
 }
