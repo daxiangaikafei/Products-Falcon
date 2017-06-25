@@ -9,11 +9,11 @@
       <el-button class="filter-item" v-waves icon="circle-close" @click="clearFilter">清除</el-button>
     </div>
 
-    <el-table  :key='tableKey' :data="list" :default-sort="{prop: 'id', order: 'aescending'}" v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">
+    <el-table  :key='tableKey' :data="list" :default-sort="{prop: 'projectId', order: 'aescending'}" v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">
 
-      <el-table-column align="center" label="任务组ID" width="130" sortable prop="id">
+      <el-table-column align="center" label="任务组ID" width="130" sortable prop="projectId">
         <template scope="scope">
-          <span>{{scope.row.id}}</span>
+          <span>{{scope.row.projectId}}</span>
         </template>
       </el-table-column>
 
@@ -41,15 +41,17 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="220px" label="组描述" show-overflow-tooltip prop="descripe">
+      <el-table-column min-width="220px" label="组描述" show-overflow-tooltip prop="describe">
         <template scope="scope" >
           <!--<el-popover
             title="组描述"
             placement="left"
             width="230"
             trigger="hover"
-            :content="scope.row.descripe">-->
-            <span class="line-more" slot="reference" >{{scope.row.descripe}}</span>
+            :content="scope.row.describe">-->
+            <!--<span class="line-more" slot="reference" >-->
+            {{scope.row.describe}}
+            <!--</span>-->
           <!--</el-popover>-->
         </template>
       </el-table-column>
@@ -105,20 +107,20 @@
           </el-form-item>
 
           <el-form-item label="组描述">
-            <el-input type="textarea" v-model="form.descripe"></el-input>
+            <el-input type="textarea" v-model="form.describe"></el-input>
           </el-form-item>
 
           <el-form-item label="首次运行日期">
-              <el-date-picker type="date" placeholder="选择日期" v-model="form.createTime" style="width: 50%;" @change="timeHandler('createTime')"></el-date-picker>
+              <el-date-picker type="date" placeholder="选择日期" v-model="form.beginDate" format="yyyy-MM-dd" style="width: 50%;"></el-date-picker>
           </el-form-item>
           <el-form-item label="调度结束日期">
-              <el-date-picker type="date" placeholder="选择日期" v-model="form.endDate" style="width: 50%;" @change="timeHandler('endDate')"></el-date-picker>
+              <el-date-picker type="date" placeholder="选择日期" v-model="form.endDate" format="yyyy-MM-dd" style="width: 50%;"></el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="success" @click="save" >保存</el-button>
-            <el-button type="primary" @click="update">提交</el-button>
+            <el-button type="success" @click="update" >保存</el-button>
+            <el-button type="primary" @click="commit">提交</el-button>
             <el-button type="warning" @click="reset">重置</el-button>
-            <el-button @click="editorDialogVisable = false">取消</el-button>
+            <el-button @click="editorDialogVisable = false">关闭</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -128,7 +130,7 @@
 </template>
 
 <script>
-    import { fetchList } from 'api/group';
+    import { fetchList, queryProjectInfo, saveOrUpdate, run, stop } from 'api/group';
     import { parseTime, objectMerge, timeToStamp } from 'utils';
 
     export default {
@@ -144,15 +146,14 @@
             keyword: ''
           },
           temp: {
-            id: undefined,
+            projectId: undefined,
             name: '',
             userName: '',
-            createTime: '',
-            dataLevel: 'SSA',
-            endDate: '',
-            updateTime: '',
-            descripe: '',
-            status: 'Waiting'
+            dataLevel: '',
+            describe: '',
+            status: '',
+            beginDate: '',
+            endDate: '',       
           },
           importanceOptions: [1, 2, 3],
           statusOptions: ['Success', 'Running', 'Falled', 'Waiting'],
@@ -165,15 +166,14 @@
           showAuditor: false,
           tableKey: 0,
           form: {
-            id: undefined,
+            projectId: undefined,
             name: '',
             userName: '',
-            dataLevel: 'SSA',
-            createTime: '',
-            endDate: '',
-            descripe: '',
-            updateTime: '',
-            status: 'Waiting'
+            dataLevel: '',
+            describe: '',
+            status: '',
+            beginDate: '',
+            endDate: '',   
           },
           loading: false
         }
@@ -251,49 +251,82 @@
           this.listQuery.end = parseInt((+time[1] + 3600 * 1000 * 24) / 1000);
         },
         handleModifyStatus(row, status) {
-          this.$message({
-            message: '操作成功',
-            type: 'success'
-          });
-          row.status = status;
+          this.loading = true;
+          stop(2, row.projectId+'').then(response => {
+            this.loading = false;
+            if (response.success) {
+              this.$message({
+                message: '操作成功',
+                type: 'success'
+              })
+              row.status = status;
+            } else {
+              this.$message({
+                message: response.message,
+                type: 'error'
+              })
+            }
+          })   
         },
         handleUpdate(row) {
-          objectMerge(this.form, row)
-          objectMerge(this.temp, this.form)
-          this.dialogStatus = 'update';
-          this.editorDialogVisable = true;
-        },
-        save() {
-          this.form.updateTime = parseTime(new Date())
-          for (let v of this.list) {
-            if (v.id === this.form.id) {
-              objectMerge(v, this.form)
-              break
+          queryProjectInfo(row.projectId).then(response => {
+            if (response.success) {
+              objectMerge(this.form, response.data)
+              objectMerge(this.temp, this.form)
+
+              this.dialogStatus = 'update';
+              this.editorDialogVisable = true;
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
+              });
             }
-          }
-          this.editorDialogVisable = false;
-          this.$notify({
-            title: '成功',
-            message: '更新成功',
-            type: 'success',
-            duration: 2000
-          });
+          })   
         },
         update() {
-          this.form.updateTime = parseTime(new Date())
-          for (let v of this.list) {
-            if (v.id === this.form.id) {
-              objectMerge(v, this.form)
-              break
+          saveOrUpdate(this.form).then(response => {
+            if (response.success) {
+              this.$notify({
+                title: '成功',
+                message: '保存成功',
+                type: 'success',
+                duration: 2000
+              });
+              // this.editorDialogVisable = false
+              this.getList()
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
+              });
             }
-          }
-          this.editorDialogVisable = false;
-          this.$notify({
-            title: '成功',
-            message: '更新成功',
-            type: 'success',
-            duration: 2000
-          });
+          })
+        },
+        commit() {
+          run(this.form.projectId).then(response => {
+            if (response.success) {
+              this.$notify({
+                title: '成功',
+                message: '提交成功',
+                type: 'success',
+                duration: 2000
+              });
+              this.editorDialogVisable = false;
+              this.getList()            
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
+              });
+            }
+          })
         },
         reset() {
           objectMerge(this.form, this.temp)
