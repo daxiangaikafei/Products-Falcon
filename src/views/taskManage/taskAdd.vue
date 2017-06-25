@@ -11,7 +11,7 @@
       <el-input v-model="form.userName  "></el-input>
     </el-form-item>
     <el-form-item label="数据库仓库层级">
-      <el-select v-model="form.db" placeholder="请选择">
+      <el-select v-model="form.dataLevel" placeholder="请选择">
         <el-option label="SSA" value="SSA"></el-option>
         <el-option label="SOR" value="SOR"></el-option>
         <el-option label="DPA" value="DPA"></el-option>
@@ -31,13 +31,13 @@
           :remote-method="getReferIds"
           :loading="loading"
           style="width:100%">
-          <el-option
-            v-for="item in referIdsOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
+        <el-option
+          v-for="item in referIdsOptions"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id">
+        </el-option>
+    </el-select>
       <!--</el-col>-->
       <!--<el-col :span="1" :offset="1">
         <el-popover
@@ -46,27 +46,27 @@
           width="400"
           trigger="click">
         </el-popover>
-        <el-button type="text" v-popover:popover4><Icon :icon-name="'plus-circle'" :size="18" /></el-button>
+        <el-button type="text" v-popover:popover4><Icon :icon-name="'plus-circle'" :size="18" ></Icon></el-button>
         </el-col>-->
     </el-form-item>
     <el-form-item label="所属组">
-      <el-select
-          v-model="form.ownerProject"
-          :multiple="false"
-          clearable
-          filterable
-          remote
-          placeholder="查询并选择任务组"
-          :remote-method="getOwnerProject"
-          :loading="loading"
-          style="width:100%">
-          <el-option
-            v-for="item in ownerProjectOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
+     <el-select
+        v-model="ownerProjectValue"
+        :multiple="false"
+        clearable
+        filterable
+        remote
+        placeholder="查询并选择任务组"
+        :remote-method="getOwnerProjects"
+        :loading="loading"
+        style="width:100%">
+        <el-option
+          v-for="item in ownerProjectsOptions"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id">
+        </el-option>
+      </el-select>
     </el-form-item>
     <el-form-item label="运行周期">
       <el-cascader 
@@ -80,63 +80,60 @@
       </el-cascader>
     </el-form-item>
     <el-form-item label="运行时间点">
-        <el-time-picker type="fixed-time" placeholder="选择时间" v-model="form.startTime" format="HH:mm" style="width: 50%;" @change="timeHandler('startTime')"></el-time-picker>
+      <el-time-picker type="fixed-time" placeholder="选择时间" v-model="startTimeValue" format="HH:mm" style="width: 50%;"></el-time-picker>
     </el-form-item>
     <!--<el-form-item label="首次运行日期">
         <el-date-picker type="date" placeholder="选择日期" v-model="form.startDate" style="width: 50%;" @change="timeHandler('startDate')"></el-date-picker>
     </el-form-item>-->
     <el-form-item>
-      <el-button type="success" @click="onSave" >保存</el-button>
-      <el-button type="primary" @click="onSubmit">提交</el-button>
+      <el-button type="success" @click="save" >保存</el-button>
+      <el-button type="primary" @click="commit">提交</el-button>
       <el-button type="warning" native-type="reset" @click="reset">重置</el-button>
-      <el-button>取消</el-button>
+      <!--<el-button>取消</el-button>-->
     </el-form-item>
   </el-form>
 </div>
 </template>
 
 <script>
-  import { fetchList, saveOrUpdate } from 'api/task';
+  import { fetchList, run, saveOrUpdate } from 'api/task';
   import { fetchList as fetchGroupList } from 'api/group';
-  import { timeToStamp } from 'utils'
+  import { timeToStamp, parseTime } from 'utils'
 
   export default {
     data() {
       return {
         form: {
-          id: undefined,
+          jobId: undefined,
           name: '',
           shellName: '',
-          ownerProject: undefined,
+          ownerProject: {},
           dataLevel: '',
           cycle: 0,
           referIds: '',
           startTime: '',
-          startDate: '',
-          endDate: '',
-          updateTime: '',   
-          status: 0,
-          userName  : '',
           field1: '',
           field2: ''                     
         },
         loading: false,
         referIdsOptions: [],
         referIdsValue: [],        
-        ownerProjectOptions: [],
+        ownerProjectsOptions: [],
         states: [],
+        ownerProjectValue: {},
+        startTimeValue: '',
         cycleValue: [],
         cycleOption: [
           {
-            value: 1,
+            value: 3,
             label: '每日'
           },
           {
-            value: 2,
+            value: 4,
             label: '每周'
           },
           {
-            value: 3,
+            value: 5,
             label: '每月',
             children: (() => {
               let list = []
@@ -150,7 +147,7 @@
             })()
           },
           {
-            value: 4,
+            value: 6,
             label: '每年',
             children: (() => {
               let list = []
@@ -174,7 +171,7 @@
             })()
           },
           {
-            value: 5,
+            value: 2,
             label: '小时',
             children: (() => {
               let list = []
@@ -188,7 +185,7 @@
             })()
           },
           {
-            value: 6,
+            value: 1,
             label: '分钟',
             children: (() => {
               let list = []
@@ -210,12 +207,12 @@
       // });
     },
     methods: {
-      onSubmit() {
-        saveOrUpdate(this.form).then(response => {
+      commit() {
+        run(this.form.jobId).then(response => {
           if (response.success) {
               this.$notify({
                 title: '成功',
-                message: '保存成功',
+                message: '提交成功',
                 type: 'success',
                 duration: 2000
               })
@@ -231,59 +228,69 @@
             }
         })
       },
-      onSave() {
+      save() {
+        this.form.ownerProject = this.ownerProjectValue
+        this.form.startTime = parseTime(this.startTimeValue, '{h}:{i}')
         saveOrUpdate(this.form).then(response => {
           if (response.success) {
-              this.$notify({
-                title: '成功',
-                message: '保存成功',
-                type: 'success',
-                duration: 2000
-              })
-              this.$refs.form.$el.reset()
-              this.reset()
-            } else {
-              this.$notify({
-                title: '失败',
-                message: response.message,
-                type: 'error',
-                duration: 2000
-              });
-            }
+            this.form.jobId = response.data
+            this.$notify({
+              title: '成功',
+              message: '保存成功',
+              type: 'success',
+              duration: 2000
+            })
+          } else {
+            this.form.ownerProject = this.ownerProjectValue.name   
+            this.$notify({
+              title: '失败',
+              message: response.message,
+              type: 'error',
+              duration: 2000
+            });
+          }
         })
       },
       getReferIds(query) {
-        if (query !== '') {
+        if (query && query !== '') {
           this.loading = true;
           fetchList({keyword:query,page:1,rows:500}).then(response => {
             this.loading = false;
             if(response.success && response.data.rows) {
               this.states = response.data.rows.map(item => {
-                return { value: item.id, label: item.name };
+                return { id: item.id, name: item.name };
               })
               this.referIdsOptions = this.states.filter(item => {
-                return item.label.toLowerCase()
+                return item.name.toLowerCase()
                   .indexOf(query.toLowerCase()) > -1;
+              })
+              this.states = []
+            } else {
+              this.$notify({
+                title: '失败',
+                message: response.message,
+                type: 'error',
+                duration: 2000
               })
             }
           })
-        } else {
           this.referIdsOptions = [];
         }
       },
-      getOwnerProject(query) {
-        if (query !== '') {
+      getOwnerProjects(query) {
+        if (query && query !== '') {
           this.loading = true;
           fetchGroupList({keyword:query,page:1,rows:500}).then(response => {
             this.loading = false;
             if(response.success && response.data.rows) {
               this.states = response.data.rows.map(item => {
-                return { value: item.id, label: item.name };
+                return { id: item.id, name: item.name };
               })
-              this.ownerProjectOptions = this.states.filter(item => {
-                return item.label.toLowerCase()
+              this.ownerProjectsOptions = this.states.filter(item => {
+                return item.name.toLowerCase()
                   .indexOf(query.toLowerCase()) > -1;
               })
+              this.states = []              
             } else {
               this.$notify({
                 title: '失败',
@@ -294,7 +301,7 @@
             }
           })
         } else {
-          this.ownerProjectOptions = [];
+          this.ownerProjectsOptions = [];
         }
       },
       handleCycle() {
@@ -307,6 +314,7 @@
       },
       reset() {
         this.referIdsValue = []
+        this.cycleValue = []
       },
       timeHandler(key) {
         timeToStamp(key, this.form)
