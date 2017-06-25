@@ -52,6 +52,7 @@
       </el-table-column>
 
       <el-table-column class-name="status-col" label="Status" width="110" sortable prop="status"
+        :filters="[{ text: 'Success', value: 'SUCCEEDED' }, { text: 'Killed', value: 'KILLED' }, { text: 'Running', value: 'RUNNING' }]" 
         :filter-method="showStatusFilter"
         filter-placement="bottom-end">
         <template scope="scope">
