@@ -213,7 +213,10 @@
           this.listLoading = true;
           fetchList(this.listQuery).then(response => {
             if (response.success) {
-              this.list = response.data.rows;
+              this.list = response.data.rows.map(obj=>{
+                obj.endDate = parseTime(new Date(obj.endDate));
+                return obj;
+              });
               this.total = response.data.pageCount;
               this.listLoading = false;
             } else {

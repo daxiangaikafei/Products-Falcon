@@ -104,7 +104,7 @@
         
       },
       timeHandler(key) {
-        timeToStamp(key, this.form)
+        // timeToStamp(key, this.form)
       }
     }
   }

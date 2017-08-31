@@ -469,6 +469,9 @@
             this.cycleValue = [this.form.cycle,+this.form.field1,+this.form.field2]
             this.referIdsOptions = this.form.referIds
             this.referIdsValue = this.form.referIds.map(item => item.id)
+            /**addby zhao */
+            this.form.referIds = this.referIdsValue.join();
+            /**end changed**/
             this.startTimeValue = +new Date('1 '+this.form.startTime)
 
             this.dialogStatus = 'update';
@@ -484,7 +487,7 @@
         })   
       },
       update() {
-        this.form.ownerProject = this.ownerProjectValue
+        this.form.ownerProject = this.ownerProjectValue;
         this.form.startTime = parseTime(this.startTimeValue, '{h}:{i}')
         // for (let v of this.list) {
         //   if (v.id === this.form.id) {

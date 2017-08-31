@@ -284,7 +284,7 @@
             this.loading = false;
             if(response.success && response.data.rows) {
               this.states = response.data.rows.map(item => {
-                return { id: item.id, name: item.name };
+                return { id: item.projectId, name: item.name };
               })
               this.ownerProjectsOptions = this.states.filter(item => {
                 return item.name.toLowerCase()
