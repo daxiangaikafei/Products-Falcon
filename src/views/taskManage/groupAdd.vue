@@ -21,7 +21,7 @@
       </el-form-item>
 
       <el-form-item label="首次运行日期">
-          <el-date-picker type="date" placeholder="选择日期" v-model="form.beginDate" style="width: 50%;" @change="timeHandler('createTime')"></el-date-picker>
+          <el-date-picker type="date" placeholder="选择日期" v-model="form.beginDate" style="width: 50%;" @change="timeHandler('beginDate')"></el-date-picker>
       </el-form-item>
       <el-form-item label="调度结束日期">
           <el-date-picker type="date" placeholder="选择日期" v-model="form.endDate" style="width: 50%;" @change="timeHandler('endDate')"></el-date-picker>
@@ -104,7 +104,9 @@
         
       },
       timeHandler(key) {
+        this.form[key] = parseTime(this.form[key])
         // timeToStamp(key, this.form)
+        // console.log(this.form[key]);
       }
     }
   }

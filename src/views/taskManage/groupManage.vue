@@ -111,10 +111,10 @@
           </el-form-item>
 
           <el-form-item label="首次运行日期">
-              <el-date-picker type="date" placeholder="选择日期" v-model="form.beginDate" format="yyyy-MM-dd" style="width: 50%;"></el-date-picker>
+              <el-date-picker type="date" placeholder="选择日期" v-model="form.beginDate" format="yyyy-MM-dd" style="width: 50%;"  @change="timeHandler('beginDate')"></el-date-picker>
           </el-form-item>
           <el-form-item label="调度结束日期">
-              <el-date-picker type="date" placeholder="选择日期" v-model="form.endDate" format="yyyy-MM-dd" style="width: 50%;"></el-date-picker>
+              <el-date-picker type="date" placeholder="选择日期" v-model="form.endDate" format="yyyy-MM-dd" style="width: 50%;"  @change="timeHandler('endDate')"></el-date-picker>
           </el-form-item>
           <el-form-item>
             <el-button type="success" @click="update" >保存</el-button>
@@ -338,7 +338,8 @@
           return row.status === value
         },
         timeHandler(key) {
-          timeToStamp(key, this.form)
+          this.form[key] = parseTime(this.form[key])
+        // timeToStamp(key, this.form)
         }
       }
     }

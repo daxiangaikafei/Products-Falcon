@@ -51,7 +51,7 @@ export default function _fetch(options) {
 export function fetch(options) {
   return new Promise((resolve, reject) => {
     const instance = axios.create({
-      timeout: 2000 // 超时
+      timeout: 20000 // 超时
     });
     instance(options)
             .then(response => {
