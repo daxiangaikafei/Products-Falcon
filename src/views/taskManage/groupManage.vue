@@ -56,14 +56,14 @@
         </template>
       </el-table-column>
 
-      <el-table-column class-name="status-col" label="Status" width="110" sortable prop="status"
+      <!-- <el-table-column class-name="status-col" label="Status" width="110" sortable prop="status"
         :filters="[{ text: 'Success', value: 0 }, { text: 'Falled', value: 1 }, { text: 'Running', value: 2 }, { text: 'Waiting', value: 3 }]"
         :filter-method="showStatusFilter"
         filter-placement="bottom-end">
         <template scope="scope">
           <el-tag :type="scope.row.status | statusFilter">{{scope.row.status | statusTextFilter }}</el-tag>
         </template>
-      </el-table-column>
+      </el-table-column> -->
 
       <el-table-column width="110px" align="center" label="提交人" sortable prop="userName">
         <template scope="scope">
